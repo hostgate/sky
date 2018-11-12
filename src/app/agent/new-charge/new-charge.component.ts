@@ -190,7 +190,9 @@ export class NewChargeComponent implements OnInit {
 
   }
   resetProduct(){
-    this.selectedProduct=null;
+
+    //test
+    this.selectedProduct=null;   
     this.note='';
     this.sims=null;
     this.has_sims=false;
