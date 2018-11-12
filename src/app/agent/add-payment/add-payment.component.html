@@ -1,0 +1,43 @@
+<div md-dialog-content dir="RTL">
+  <p *ngIf="id==0">{{'add_payment'|translate}}?</p>
+  <p *ngIf="id>0">{{'edit_payment'|translate}}?</p>
+   <form novalidate [formGroup]="paymentForm" class="form-inline">
+    <md-select placeholder="{{'payment_art'|translate}}" formControlName="art" tabindex="1" [compareWith]="compareWith">
+      <md-option [value]="0">{{'shek'|translate}}</md-option>
+      <md-option [value]="1">{{'credit'|translate}}</md-option>
+      <md-option [value]="2">{{'cash'|translate}}</md-option>
+    </md-select>
+    <valid-err [control]="paymentForm.controls['art']"></valid-err>
+    <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+      <input mdInput formControlName="shek_number" placeholder="{{'shek_number'|translate}}"/>
+    </md-form-field>
+    <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+      <input mdInput formControlName="bank_name" placeholder="{{'bank_name'|translate}}"/>
+    </md-form-field>
+    <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+      <input mdInput formControlName="bank_branch" placeholder="{{'bank_branch'|translate}}"/>
+    </md-form-field>
+    <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+      <input mdInput [mdDatepicker]="picker1" placeholder="{{'shek_maturity_date'|translate}}" formControlName="shek_maturity_date">
+      <md-datepicker-toggle mdSuffix [for]="picker1"></md-datepicker-toggle>
+      <md-datepicker #picker1></md-datepicker>
+    </md-form-field>
+    <md-form-field>
+      <input mdInput formControlName="amount" placeholder="{{'amount'|translate}}"/>
+      <valid-err [control]="paymentForm.controls['amount']"></valid-err>
+    </md-form-field>
+    <md-form-field>
+      <input mdInput [mdDatepicker]="picker" placeholder="{{'choose_a_date'|translate}}" formControlName="related_to_date">
+      <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+      <md-datepicker #picker></md-datepicker>
+    </md-form-field>
+    <md-form-field>
+      <textarea mdInput formControlName="note" placeholder="{{'note'|translate}}"></textarea>
+    </md-form-field>
+  </form> 
+  </div>
+  <div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save(id)" tabindex="2" >{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+  </div>
+  <md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

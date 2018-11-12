@@ -1,0 +1,55 @@
+<md-toolbar color="primary">{{'mobility_numbers' | translate}}</md-toolbar>
+<md-toolbar>
+  <button md-button style="position: relative;
+  float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+  
+  </md-toolbar>
+<div class="example-container mat-elevation-z8">
+        <div class="example-header">
+            <md-form-field floatPlaceholder="never">
+                <input mdInput placeholder="{{'search'|translate}}" #filter>
+                <md-icon mdSuffix>search</md-icon>
+            </md-form-field>
+        </div>
+        <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+            <ng-container mdColumnDef="phone">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">
+                        <button md-button color="primary" [routerLink]="['/מספר', row.id]" >{{row.phone}}</button>
+                    </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="moved_to_phone">
+                    <md-header-cell *mdHeaderCellDef md-sort-header>{{'moved_number'|translate}} </md-header-cell>
+                    <md-cell *mdCellDef="let row" >
+                        <span *ngIf="row.accepted_moved_to_phone=='0'" style="color:red;"><strong> {{row.moved_to_phone}} </strong></span>
+                        <span *ngIf="row.accepted_moved_to_phone=='1'" style="color:green;"><strong> {{row.moved_to_phone}} </strong></span>
+                    </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="agent_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                  
+                     
+                    <button md-raised-button color="primary" [routerLink]="['/סוכן', row.agent_id]" *ngIf="row.agent_id">{{row.agent_name}}</button>
+                    </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="company_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">  {{'company_name_'+row.company_id|translate}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="id">
+                <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                <md-cell *mdCellDef="let row">
+                        <md-icon mdTooltip="{{'confirm_transfer'|translate}}" (click)="complete(row)" color="primary" style="cursor:pointer;" *ngIf="row.accepted_moved_to_phone=='0'">done</md-icon>
+                        <span style="color:green" *ngIf="row.accepted_moved_to_phone=='1'">&nbsp;{{'tarns_in_date'|translate}}<br/>{{(row.accepted_moved_date_num | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}</span>
+                        
+                </md-cell>
+            </ng-container>
+            <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+            <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+        </md-table>
+        <md-paginator #paginator [length]="phonesDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+        </md-paginator>
+    </div>
+    <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>
+    

@@ -1,0 +1,82 @@
+<div class="row"  *ngIf="company_list">
+  <div class="col-lg-12">
+      <md-toolbar color="primary">{{'excel_charge'|translate}}</md-toolbar>  
+  </div>
+  <div class="col-lg-12"  style="margin:10px 0 0 0;" *ngIf="company">
+    <a (click)="resetCompany()" *ngIf="company" md-raised-button style="margin:2px;">{{'company_name_'+company|translate}}
+      <md-icon>close</md-icon>
+    </a>
+    <a (click)="resetProduct()" *ngIf="product" md-raised-button style="margin:2px;">{{'prod_name_'+product|translate}}
+        <md-icon>close</md-icon>
+    </a>
+    <a (click)="resetAgent()" *ngIf="agent && agent.id" md-raised-button style="margin:2px;">{{getAgentName(agent)}}
+        <md-icon>close</md-icon>
+      </a>
+    </div>
+  <div class="col-lg-12" >
+    <div style="padding: 0 30px;">
+        
+  <md-select placeholder="{{'company'|translate}}" [(ngModel)]="company" tabindex="1" [ngClass]="{'dn': false}" *ngIf="!company" >
+    <md-option *ngFor="let c of company_list" [value]="c.id">
+        {{'company_name_'+c.id|translate}}
+    </md-option>
+  </md-select>
+  <ng-container *ngIf="company && !product">
+    <br/>
+    <md-select placeholder="{{'product'|translate}}" [(ngModel)]="product" tabindex="1" [ngClass]="{'dn': !company}">
+      <md-option *ngFor="let p of getCompanyProducts(company)" [value]="p.id">
+        {{'prod_name_'+p.id|translate}}
+      </md-option>
+    </md-select>
+  </ng-container>
+  <ng-container *ngIf="agent_list">
+      <br/>
+      <md-form-field *ngIf="!agent || !agent.id">
+          <input mdInput placeholder="{{'agent'|translate}}" [(ngModel)]="agent" (keyup)="agentSearch($event)" [mdAutocomplete]="auto">
+          <md-autocomplete  #auto="mdAutocomplete">
+              <md-option *ngFor="let option of searchAgents" [value]="option">
+                  {{option.firstname}} {{option.lastname}}
+              </md-option>
+            </md-autocomplete>
+      </md-form-field>
+    </ng-container>
+    <md-checkbox   [(ngModel)]="api">{{'connect_api'|translate}}</md-checkbox><br/>
+    <ng-container *ngIf="company&&product&&agent&&agent.id">
+        <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
+    <button md-button (click)="fileInput.click()" style="position: relative;margin-bottom:5px;">העלאת מספרי טלפון וסים<md-icon color="primary">file_upload</md-icon></button>
+    </ng-container>
+  </div>
+  </div>
+  <div class="col-lg-12"  style="margin:10px 0 10px 0;padding:30px;">
+        <ng-container *ngIf="number_list && number_list.length>0">
+          <br/><br/>
+          <button md-raised-button color="primary" (click)="createOrders()" style="position: relative;margin-bottom:5px;float:left">ביצוע טעינות</button>
+   
+          <br/><br/>
+            
+       
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{'phone'|translate}}</th>
+              <!-- <th>{{'sim'|translate}}</th> -->
+              <th>#</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr  *ngFor="let item of number_list;let i=index"> 
+              <td>{{i+1}}</td>
+              <td [ngClass]="{'table-danger':!item.phone_in,'table-success':item.phone_in}">{{item.phone}}</td>
+              <!-- <td [ngClass]="{'table-danger':!item.sim_in,'table-success':item.sim_in}">{{item.sim}}</td> -->
+              <td><md-icon (click)="resetNumber(i)" style="cursor:pointer;">close</md-icon></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </ng-container>
+  </div>
+  
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>
+<span style="color:red;" *ngIf="loading">{{'wait_msg'|translate}}</span>

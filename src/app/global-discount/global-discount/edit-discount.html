@@ -1,0 +1,22 @@
+
+<div md-dialog-content dir="RTL">
+    <p>{{'edit_discount'|translate}}?</p>
+    <md-checkbox  (click)="changeDiscount()" [(ngModel)]="pro">{{'discount_prozent'|translate}}</md-checkbox>
+  <form novalidate [formGroup]="data.discountForm"  class="form-inline">
+    <div class="form-group">
+        <md-form-field>
+        <input mdInput tabindex="1" formControlName="discount" placeholder="{{discount_art|translate}}" />
+       
+        <span mdSuffix *ngIf="pro">%</span>
+        <span mdSuffix  *ngIf="!pro">ש"ח</span>
+        <valid-err [control]="data.discountForm.controls['discount']"></valid-err>
+      </md-form-field>
+    </div>
+  </form>
+  </div>
+  <div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save(data.discountForm.value.discount,data.agent_discount)" tabindex="2" [disabled]="!data.discountForm.valid">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+  </div>
+  
+  

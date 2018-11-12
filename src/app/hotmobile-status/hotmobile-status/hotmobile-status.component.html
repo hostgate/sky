@@ -1,0 +1,52 @@
+<div class="row"  >
+  <div class="col-lg-12">
+      <md-toolbar color="primary">{{'status_hotmobile'|translate}}</md-toolbar>  
+  </div>
+  <div class="col-lg-12" style="margin:20px;">
+      <md-form-field style="max-width:200px;">
+    <input mdInput placeholder="{{'phone'|translate}}" [(ngModel)]="phone" >
+    </md-form-field>
+    <button md-raised-button color="primary" (click)="loadDetails()" >פרטי מספר</button>
+          <br/><br/>
+          <ng-container *ngIf="details && details!=null">
+              <div [ngClass]="{'alert alert-danger':details.code<0 || details.sim_status>1,'alert alert-info':details.sim_status==1}" style="width:330px;padding:10px;">
+        
+                
+                <div *ngIf="details.sim_status">
+                  <table>
+                    <tr>
+                      <td>
+                        {{details.field_sim_status}} :
+                      </td>
+                      <td>
+                        {{details.sim_status_str}}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>{{details.field_sim_number}} : </td>
+                      <td>{{details.sim_number}}</td>
+                    </tr>
+        
+                  </table>
+                </div>
+                <span style="padding:10px;">{{details.message}}</span>
+               
+              </div>
+           
+          </ng-container>
+          <br/>
+          <p *ngIf="details && details!=null && details.sim_status">
+            <button md-raised-button color="primary" (click)="connect()" tabindex="2" [disabled]="details.sim_status==1">{{'connect'|translate}}</button>
+            <button md-raised-button color="warn" (click)="disconnect()" tabindex="2" [disabled]="details.sim_status==3">{{'disconnect'|translate}}</button> 
+          </p><br/>
+          <!-- 0546169240 -->
+          <div *ngIf="details && details!=null && details.sim_status==1">
+              <md-form-field style="max-width:200px;">
+              <input mdInput placeholder="{{'sim'|translate}}" [(ngModel)]="sim" >
+            </md-form-field>
+              <button md-raised-button color="primary" (click)="changeSim()" tabindex="2" [disabled]="!sim || sim==''">{{'change_sim'|translate}}</button>
+          </div>
+  </div>
+</div>
+
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

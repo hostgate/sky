@@ -1,0 +1,50 @@
+<div md-dialog-content dir="RTL">
+    <p>{{'edit_sim'|translate}}?</p>
+  <form novalidate [formGroup]="data.simForm"  class="form-inline" *ngIf="data.simForm">
+        <md-form-field>
+        <input mdInput tabindex="1" formControlName="sim" placeholder="{{'sim'|translate}}" />
+        <valid-err [control]="data.simForm.controls['sim']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="note" placeholder="{{'note'|translate}}" />
+        <valid-err [control]="data.simForm.controls['note']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <md-chip-list mdPrefix #chipList >
+          <md-chip  [selectable]="selectable" [removable]="removable" (remove)="initSelectedAgent()" *ngIf="selectedAgent._username!=''">
+            {{selectedAgent._username|translate}}
+            <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+          </md-chip>
+        </md-chip-list>
+        <input 
+          mdInput 
+          placeholder="{{'related_to_agent'|translate}}"
+          [mdChipInputFor]="chipList"
+          [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          [mdChipInputAddOnBlur]="addOnBlur"
+          formControlName="agent_id" 
+          aria-label="Number"  
+          [mdAutocomplete]="auto" 
+          tabindex="1"
+          (keyup)="searchAgent($event)" 
+          (focusout)="chooseAgent($event)"
+        />
+        <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+          <md-option [value]="{username:'free'|translate,id:0}">{{'free'|translate}}</md-option>
+          <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;">
+            {{ option._username }}
+          </md-option>
+        </md-autocomplete>
+      </md-form-field>
+      <md-select placeholder="{{'company'|translate}}" formControlName="company_id" tabindex="1" [compareWith]="compareWith">
+        <md-option *ngFor="let company of data.sim.companies" [value]="company.id">
+        {{ company.name }}
+        </md-option>
+      </md-select>
+      
+  </form>
+  </div>
+  <div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save(data.item.id)" tabindex="2" [disabled]="!data.simForm.valid || selectedAgent._username==''">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+  </div>

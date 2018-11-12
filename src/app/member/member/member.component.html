@@ -1,0 +1,88 @@
+<md-toolbar color="primary">{{'members'|translate}}</md-toolbar>
+<md-toolbar>
+    <button md-button (click)="openAddDialog()" style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px"><md-icon color="primary">add_circle</md-icon></button>
+    <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+    
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+        <div class="example-header">
+            <md-form-field floatPlaceholder="never">
+                <input mdInput placeholder="{{'search'|translate}}" #filter>
+                <md-icon mdSuffix>search</md-icon>
+            </md-form-field>
+        </div>
+        <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+            
+            <ng-container mdColumnDef="agent_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':authService.isAgent()}">{{'agent'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row" [ngClass]="{'dn':authService.isAgent()}">
+                    <button md-button [routerLink]="['/סוכן', row.agent_id]" routerLinkActive="active" color="primary">{{row.agent_name}} </button>
+                </md-cell>
+            </ng-container> 
+            <ng-container mdColumnDef="consumer_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'consumer'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">  
+                        <button md-button [routerLink]="['/לקוח', row.consumer_id]" routerLinkActive="active" color="primary">{{row.consumer_name}} </button>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="company_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{'company_name_'+row.company_id|translate}}</md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="phone">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row" > 
+                    <span *ngIf="row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                            <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.phone}}</button>
+                    </span>
+                    <span *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                            <ng-container *ngIf="authService.canUpdate();else e1e">
+                                <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">
+                                    <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                    <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                                </button>
+                            </ng-container>
+                            <ng-template #e1e>
+                                <button  md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.moved_to_phone}}</button> 
+                            </ng-template>
+                    </span> 
+                    <span  *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                            <ng-container *ngIf="authService.canUpdate();else e2e">
+                                    <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">
+                                        <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                        <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                                    </button>
+                            </ng-container>
+                            <ng-template #e2e>
+                                <button  md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.moved_to_phone}}</button>
+                            </ng-template>
+                    </span>
+                   
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="sim">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'sim'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{row.sim}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="id">
+                    <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                    <md-cell *mdCellDef="let row" > 
+                        <md-icon (click)="reset(row.id)" color="warn" style="cursor:pointer;">reset</md-icon> 
+                        <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;" *ngIf="!row.has_orders">delete</md-icon>
+                        <button md-raised-button (click)="block(row,0)" color="warn" *ngIf="(authService.canUpdate() ) && row.free==1">{{'block_others'|translate}}</button>
+                        <button md-raised-button (click)="block(row,1)" color="primary" *ngIf="(authService.canUpdate() ) && row.free==0">{{'open_to_others'|translate}}</button>
+                        <button md-raised-button (click)="block(row,1)" color="warn" *ngIf="(authService.isAgent() ) && row.block_my_members=='1' && row.free==1">{{'block_others'|translate}}</button>
+                        <button md-raised-button (click)="block(row,0)" color="primary" *ngIf="(authService.isAgent()) && row.block_my_members=='1' && row.free==0">{{'open_to_others'|translate}}</button>
+                        <button md-raised-button color="primary" [routerLink]="['/הזמנה-חדשה', row.phone_id]" *ngIf="authService.isAgent()" >{{'new_order'|translate}}</button>
+                   
+                    </md-cell>
+                </ng-container>
+            <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+            <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+        </md-table>
+        <md-paginator #paginator [length]="membersDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+        </md-paginator>
+    </div>
+    <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

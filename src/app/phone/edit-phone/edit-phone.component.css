@@ -1,0 +1,19 @@
+.phone-list {
+    display: block;
+    max-height: 100px;
+    overflow: auto;
+}
+
+.phone-list:focus,
+.phone-list *:focus {
+    outline: none;
+}
+
+
+.mat-select,.mat-form-field {
+    display: block;
+    width: 100%;
+}
+.dn {
+    display: none!important;
+}

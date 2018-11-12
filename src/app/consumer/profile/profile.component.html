@@ -1,0 +1,14 @@
+<md-tab-group  *ngIf="customer">
+    <md-tab label="{{'consumer'|translate}}">
+      <div class="demo-tab-content">
+        <app-customer-info [customer]="customer"  *ngIf="customer"></app-customer-info>
+      </div>
+    </md-tab>
+    <md-tab label="{{'members'|translate}}" *ngIf="customer.members && customer.members.length>0 && load_orders==0">
+      <div class="demo-tab-content">
+        <app-customer-members [customer]="customer"></app-customer-members>
+      </div>
+    </md-tab>
+    
+  </md-tab-group>
+  <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

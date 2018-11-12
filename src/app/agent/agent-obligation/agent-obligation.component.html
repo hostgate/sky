@@ -1,0 +1,28 @@
+<div  class="first">
+  <md-toolbar color="primary">{{'agent_account'|translate}}</md-toolbar>
+  <dl>
+    <ng-container *ngIf="agent.obligation.credit">
+        <div style="color:green;" *ngIf="agent.obligation.credit>0">
+          <dt>{{'credit'|translate}} </dt>
+          <dd>{{agent.obligation.credit?agent.obligation.credit:0|currency:'ILS':'code'}} &nbsp;
+        </div>
+        <div style="color:red;" *ngIf="agent.obligation.credit<=0">
+            <dt>{{'credit'|translate}} </dt>
+            <dd>{{agent.obligation.credit?agent.obligation.credit:0|currency:'ILS':'code'}} &nbsp;
+        </div>
+        <md-icon style="color:green;" *ngIf="agent.obligation.credit>0">arrow_drop_up</md-icon>
+        <md-icon style="color:red;" *ngIf="agent.obligation.credit<=0">arrow_drop_down</md-icon>
+    </ng-container>
+    <dt>{{'obligation'|translate}} </dt>
+    <dd>{{agent.obligation.obligation?agent.obligation.obligation:0|currency:'ILS':'code'}} &nbsp;
+      <md-icon color="primary" (click)="openObligationUpdate()" style="cursor:pointer;" *ngIf="authService.canUpdate()">mode_edit</md-icon>
+    </dd>
+    <dt>{{'can_use'|translate}}</dt>
+    <dd>{{agent.obligation.can_use?agent.obligation.can_use:0|currency:'ILS':'code'}}</dd>
+    <dt>{{'all_payments'|translate}}</dt>
+    <dd>{{agent.obligation.total_payments?agent.obligation.total_payments:0|currency:'ILS':'code'}}</dd>
+    <dt>{{'all_orders'|translate}}</dt>
+    <dd>{{agent.obligation.total_orders?agent.obligation.total_orders:0|currency:'ILS':'code'}}</dd>
+  </dl> 
+  
+</div>

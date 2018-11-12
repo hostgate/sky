@@ -1,0 +1,92 @@
+<md-toolbar color="primary">{{'discounts'|translate}}</md-toolbar>
+<!-- <pre>
+  {{companies|json}}
+</pre> -->
+<div class="col-md-12" style="padding-top: 20px;">
+  <form class="example-form" *ngIf="companies" dir="rtl" >
+      <md-select placeholder="{{'company'|translate}}"  tabindex="1" (change)="changeCompany($event)" style="width:100%;">
+          <md-option *ngFor="let company of companies" [value]="company.id">
+              {{'company_name_'+company.id|translate}}
+          </md-option>
+      </md-select>
+    <md-form-field class="example-full-width" *ngIf="selectedCompany!=null">
+      <input type="text" placeholder="{{'select_product'|translate}}" aria-label="Number" mdInput [formControl]="myControl" [mdAutocomplete]="auto" 
+        (ngModelChange)="changeProduct($event)"  style="width:100%;">
+      <md-icon (click)="empty()" *ngIf="myControl.value!=null && myControl.value!=''" mdSuffix>close</md-icon>
+      <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn" >
+        <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;" >
+            {{'prod_name_'+option.id|translate}}
+        </md-option>
+      </md-autocomplete>
+    </md-form-field>
+  </form>
+  <md-card class="example-card" *ngIf="selectedProduct!=null">
+    <md-card-header>
+      <md-card-title>
+        <h2>
+            {{'prod_name_'+selectedProduct.id|translate}}
+        </h2>
+      </md-card-title>
+      <md-card-subtitle>{{'company'|translate}}:
+          {{'company_name_'+selectedProduct.company_id|translate}}
+      </md-card-subtitle>
+      <md-card-subtitle>{{'price'|translate}}: ₪{{selectedProduct.price}}</md-card-subtitle>
+    </md-card-header>
+    <md-card-content>
+      <p><button md-raised-button color="primary" (click)="openAddAllDialog(selectedProduct.name,selectedProduct.company_name)" >{{'discount_for_all'|translate}}</button></p>
+      <p innerHTML="{{'prod_desc_'+selectedProduct.id|translate}}">
+          
+      </p>
+    </md-card-content> 
+  </md-card>
+<div class="row">
+  <div class="col">
+    <button *ngIf="selectedProduct!=null" md-button style="position: relative;
+    float: right;    margin: 10px 15px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+    
+  </div>
+</div>
+
+
+<div class="example-container mat-elevation-z8" [ngClass]="{'discountshide': !selectedDiscounts ||selectedDiscounts.length==0}" *ngIf="selectedProduct!=null">
+  <div class="example-header" >
+    <md-form-field floatPlaceholder="never">
+      <input mdInput  placeholder="{{'filter_users'|translate}}" #filter >
+    </md-form-field>
+  </div>
+  <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+    <ng-container mdColumnDef="discount">
+      <md-header-cell *mdHeaderCellDef md-sort-header>{{'discount'|translate}} </md-header-cell>
+      <md-cell *mdCellDef="let row">{{row.discount| number : '1.2-2' }}%&nbsp;|&nbsp;{{0.01*row.discount*selectedProduct.price| number : '1.2-2' }}&nbsp;ש"ח </md-cell>
+    </ng-container>
+   
+    <ng-container mdColumnDef="product_name">
+      <md-header-cell *mdHeaderCellDef>{{'product'|translate}} </md-header-cell>
+      <md-cell *mdCellDef="let row">
+          {{'prod_name_'+row.product_id|translate}}
+      </md-cell>
+      
+    </ng-container>
+    <ng-container mdColumnDef="username">
+      <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}}</md-header-cell>
+      <md-cell *mdCellDef="let row"> {{row.username}} </md-cell>
+    </ng-container>
+    <ng-container mdColumnDef="user_id">
+      <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+      <md-cell *mdCellDef="let row"> 
+        <md-icon (click)="openEditDialog(row.user_id)" color="primary" style="cursor:pointer;">mode_edit</md-icon>
+      </md-cell>
+    </ng-container>
+    <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+    <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+  </md-table>
+  <md-paginator #paginator
+    numberOfPage="sds" 
+    [length]="selectedDiscounts.length"
+    [pageIndex]="0"
+    [pageSize]="25"
+    [pageSizeOptions]="[2, 10, 25, 100]">
+  </md-paginator>
+</div>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

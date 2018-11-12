@@ -1,0 +1,49 @@
+<div md-dialog-content dir="RTL">
+  <p>{{'add_product'|translate}}?</p>
+  
+  <form novalidate [formGroup]="data.product.productForm"  class="form-inline">
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="name" placeholder="{{'product_name'|translate}}" />
+        <valid-err [control]="data.product.productForm.controls['name']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="name_ar" placeholder="{{'product_name_ar'|translate}}" />
+      </md-form-field>
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="name_en" placeholder="{{'product_name_en'|translate}}" />
+      </md-form-field>
+      <md-form-field>
+        <textarea mdInput formControlName="description" placeholder="{{'product_description'|translate}}" matTextareaAutosize matAutosizeMinRows="2"
+        matAutosizeMaxRows="5"></textarea>
+        <valid-err [control]="data.product.productForm.controls['description']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <textarea mdInput formControlName="description_ar" placeholder="{{'product_description_ar'|translate}}" matTextareaAutosize matAutosizeMinRows="2"
+        matAutosizeMaxRows="5"></textarea>
+      </md-form-field>
+      <md-form-field>
+        <textarea mdInput formControlName="description_en" placeholder="{{'product_description_en'|translate}}" matTextareaAutosize matAutosizeMinRows="2"
+        matAutosizeMaxRows="5"></textarea>
+      </md-form-field>
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="price" placeholder="{{'product_price'|translate}}" />
+        <valid-err [control]="data.product.productForm.controls['price']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="days_or_months_numbers" placeholder="{{'_number'|translate}} {{data.product.productForm.value.days_or_months|translate}}" />
+      </md-form-field>
+      <md-select placeholder="{{'months'|translate}} {{'or'|translate}} {{'days'|translate}}" formControlName="days_or_months" tabindex="1">
+        <md-option  [value]="'months'">{{'months'|translate }}</md-option>
+        <md-option  [value]="'days'">{{'days'|translate }}</md-option> 
+      </md-select>
+      <md-select placeholder="{{'product_company'|translate}}" formControlName="company_id" tabindex="1">
+        <md-option *ngFor="let company of data.product.companies" [value]="company.id">
+          {{ company.name }}
+        </md-option>
+      </md-select>
+  </form>
+</div>
+<div md-dialog-actions dir="RTL">
+<button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!data.product.productForm.valid">{{'save'|translate}}</button>
+<button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>

@@ -1,0 +1,98 @@
+<div md-dialog-content dir="RTL">
+    <p>{{'add_member'|translate}}?</p>
+   
+    <form novalidate [formGroup]="memberForm" class="form-inline">
+        <md-form-field *ngIf="authService.canUpdate()">
+             
+                        <img mdSuffix
+                        *ngIf="agentSearch"
+                        src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+                        />
+               
+            <md-chip-list mdPrefix #chipList >
+                <md-chip  [selectable]="selectable" [removable]="removable" (remove)="resetUser()" *ngIf="selectedAgent._username!=''">
+                    {{selectedAgent._username|translate}}
+                    <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+                </md-chip>
+            </md-chip-list>
+            <input 
+                mdInput 
+                placeholder="{{'agent'|translate}}"
+                [mdChipInputFor]="chipList"
+                [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [mdChipInputAddOnBlur]="addOnBlur"
+                formControlName="agent_id" 
+                aria-label="Number"  
+                [mdAutocomplete]="auto" 
+                tabindex="1"
+                (keyup)="searchAgent($event)" 
+                (focusout)="chooseAgent($event)" 
+            />
+            <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+                <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;">
+                {{ option._username }}
+                </md-option>
+            </md-autocomplete>
+        </md-form-field>
+        <md-chip-list *ngIf="consumersNotFound">
+            <md-chip style="color:red;margin-bottom:20px;">{{'consumersNotFound'|translate}}</md-chip>
+        </md-chip-list>
+        <md-select placeholder="{{'consumer'|translate}}" formControlName="consumer_id" tabindex="1" [ngClass]="{'dn': !consumers}">
+            <md-option *ngFor="let consumer of consumers" [value]="consumer.id">
+                {{consumer.firstname }} {{consumer.lastname}}
+            </md-option>
+        </md-select>
+        
+        <md-select placeholder="{{'company'|translate}}" formControlName="company_id" tabindex="1" (change)="initCompanyData($event.value)" [ngClass]="{'dn': selectedAgent.id==0}">
+            <md-option *ngFor="let company of companies" [value]="company.id">
+                {{'company_name_'+company.id|translate}}
+            </md-option>
+        </md-select>
+        <md-form-field [ngClass]="{'dn':!memberForm.value.company_id || selectedAgent.id==0}">
+                <img mdSuffix
+                *ngIf="simSearch"
+                src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+                />
+                <input type="text" placeholder="{{'sim'|translate}}" aria-label="Number" mdInput formControlName="sim_id" 
+                [mdAutocomplete]="auto1" tabindex="1"
+                  (keyup)="searchSim($event)" (focusout)="chooseSim($event)">
+                  <valid-err [control]="memberForm.controls['sim_id']"></valid-err>
+                <md-autocomplete #auto1="mdAutocomplete" [displayWith]="displayFnSim"  >
+                  <md-option *ngFor="let option of sims|async" [value]="option" style="text-align:right;" >
+                    {{ option.sim }}
+                  </md-option>
+                </md-autocomplete>
+              </md-form-field>
+        <md-chip-list *ngIf="phonesNotFound">
+            <md-chip style="color:red;margin-bottom:20px;">{{'phonesNotFound'|translate}}</md-chip>
+            
+        </md-chip-list>
+        <md-select placeholder="{{'phone'|translate}}" formControlName="phone_id" tabindex="1" [ngClass]="{'dn': !phones}">
+            <md-option *ngFor="let phone of phones" [value]="phone.id">
+                {{phone.phone}}
+            </md-option>
+        </md-select>
+        <md-slide-toggle mdInput formControlName="moved" [ngClass]="{'dn': !phones}"
+            class="example-margin"
+            [color]="'primary'">
+            {{'moved_number'|translate}}
+        </md-slide-toggle>
+        <md-form-field [ngClass]="{'dn': !memberForm.value.moved}">
+            <input mdInput formControlName="moved_to_phone" placeholder="{{'moved_to_phone'|translate}}">
+        </md-form-field>
+        <md-slide-toggle mdInput formControlName="free" *ngIf="block_others_agents"
+            class="example-margin"
+            [color]="'primary'">
+            {{'_free'|translate}}
+        </md-slide-toggle>
+        <md-form-field>
+            <textarea mdInput formControlName="note" placeholder="{{'note'|translate}}"></textarea>
+            <valid-err [control]="memberForm.controls['note']"></valid-err>
+        </md-form-field>
+    </form>
+</div>
+<div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!memberForm.valid || !memberForm.value.sim_id.sim">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

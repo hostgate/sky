@@ -1,0 +1,14 @@
+<div md-dialog-content dir="RTL">
+        <p>{{data.item.description}}?</p>
+      <form novalidate [formGroup]="settingsForm" class="form-inline">
+            <md-form-field>
+            <input mdInput tabindex="1" formControlName="value" placeholder="{{'value'|translate}}" />
+            <valid-err [control]="settingsForm.controls['value']"></valid-err>
+          </md-form-field>
+          <md-slide-toggle formControlName="active" color="primary">{{'active'|translate}}</md-slide-toggle>
+      </form>
+      </div>
+      <div md-dialog-actions dir="RTL">
+        <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!settingsForm.valid">{{'save'|translate}}</button>
+        <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+      </div>

@@ -1,0 +1,48 @@
+<md-toolbar color="primary">{{'agents_acounts'|translate}}</md-toolbar>
+<md-toolbar>
+    <button md-button style="position: relative;float: left;margin-bottom:5px;margin-right:10px;" 
+    (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+  <div class="example-header">
+      <md-form-field floatPlaceholder="never">
+          <input mdInput placeholder="{{'search'|translate}}" #filter>
+          <md-icon mdSuffix>search</md-icon> 
+      </md-form-field>
+  </div>
+  <md-table #table [dataSource]="dataSource" dir="RTL" mdSort >
+      <ng-container mdColumnDef="name">
+          <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}} </md-header-cell>
+          <md-cell *mdCellDef="let row"><button md-button [routerLink]="['/סוכן', row.agent_id]" color="primary"> {{stripslashes(row.name)}} </button></md-cell>
+      </ng-container>
+      <ng-container mdColumnDef="credit">
+        <md-header-cell *mdHeaderCellDef md-sort-header>{{'credit'|translate}} </md-header-cell>
+        <md-cell *mdCellDef="let row"> 
+          <span [ngClass]="{'red':row.credit<0,'green':row.credit>0}">
+              {{(row.credit?row.credit:0)|currency:'ILS':'code'}}
+          </span> 
+        </md-cell>
+      </ng-container>
+      <ng-container mdColumnDef="obligation">
+        <md-header-cell *mdHeaderCellDef md-sort-header>{{'obligation'|translate}} </md-header-cell>
+        <md-cell *mdCellDef="let row"> {{(row.obligation?row.obligation:0)|currency:'ILS':'code'}} </md-cell>
+      </ng-container>
+      <ng-container mdColumnDef="can_use">
+        <md-header-cell *mdHeaderCellDef md-sort-header>{{'can_use'|translate}} </md-header-cell>
+        <md-cell *mdCellDef="let row"> {{(row.can_use?row.can_use:0)|currency:'ILS':'code'}} </md-cell>
+      </ng-container>
+      <ng-container mdColumnDef="total_payments">
+        <md-header-cell *mdHeaderCellDef md-sort-header>{{'total_payments'|translate}} </md-header-cell>
+        <md-cell *mdCellDef="let row"> {{(row.total_payments?row.total_payments:0)|currency:'ILS':'code'}} </md-cell>
+      </ng-container>
+      <ng-container mdColumnDef="total_orders">
+        <md-header-cell *mdHeaderCellDef md-sort-header>{{'total_orders'|translate}} </md-header-cell>
+        <md-cell *mdCellDef="let row"> {{(row.total_orders?row.total_orders:0)|currency:'ILS':'code'}} </md-cell>
+      </ng-container>
+      <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+      <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+  </md-table>
+  <md-paginator #paginator [length]="creditsDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+  </md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

@@ -1,0 +1,28 @@
+<div md-dialog-content dir="RTL">
+    <p>{{'add'|translate}} {{'block'|translate}}?</p>
+    <form novalidate [formGroup]="blockForm" class="form-inline">
+        <md-select placeholder="{{'agent'|translate}}" formControlName="agent_id" tabindex="1">
+            <md-option value="0">{{'all_agents'|translate}}</md-option>
+            <md-option *ngFor="let agent of agents" [value]="agent.id">
+                {{agent.firstname}} {{agent.lastname}} 
+            </md-option>
+        </md-select>
+        <md-select placeholder="{{'company'|translate}}" formControlName="company_id" tabindex="1" (change)="resetAllPackages()"> 
+            <md-option *ngFor="let company of companies" [value]="company.id">
+                {{'company_name_'+company.id|translate}} 
+            </md-option>
+        </md-select>
+        <md-checkbox (click)="resetPackages()" formControlName="all_packages" [ngClass]="{'dn': (!blockForm.value.company_id)}">{{'all_packages'|translate}}</md-checkbox>
+        <md-select placeholder="{{'product'|translate}}" formControlName="package_id" tabindex="1" [ngClass]="{'dn': (!blockForm.value.company_id || blockForm.value.all_packages)}">
+          <ng-container  *ngFor="let package of packages">
+            <md-option [value]="package.id" *ngIf="package.company_id==blockForm.value.company_id">
+                {{'prod_name_'+package.id|translate}} 
+            </md-option>
+          </ng-container>
+        </md-select>
+    </form>
+</div>
+<div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!blockForm.valid ||(!blockForm.value.package_id && !blockForm.value.all_packages)">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>

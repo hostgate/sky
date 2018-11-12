@@ -1,0 +1,118 @@
+<div class="row"  *ngIf="phone">
+  <div class="col-lg-12">
+      <md-toolbar color="primary">{{'new_order'|translate}}</md-toolbar>  
+  </div>
+  <div class="col-lg-12" *ngIf="phone && view_info && selectedProduct" style="margin:10px 0 10px 0;">
+    <h3>{{'before_order'|translate}}</h3>
+    <strong>{{'purchase_price'|translate}}:&nbsp;</strong>{{selectedProduct.price| number : '1.2-2'}}-{{(0.01*selectedProduct.discount*selectedProduct.price)| number : '1.2-2'}}={{(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price))| number : '1.2-2'|currency:'ILS':'code' }}
+    <br/>
+    <strong>{{'selling_price'|translate}}:&nbsp;</strong>{{selectedProduct.price| number : '1.2-2'}}+{{(selectedProduct.profit)| number : '1.2-2' }}={{selectedProduct.price+(selectedProduct.profit)| number : '1.2-2'|currency:'ILS':'code'}}
+    <br/>
+    <strong>{{'obligation'|translate}}:</strong>{{phone.obligation.obligation|currency:'ILS':'code'}}
+    <br/>
+    <span [ngClass]="{'green':phone.obligation.credit>0,'red':phone.obligation.credit<=0}">
+    <strong>{{'credit'|translate}}:</strong>{{phone.obligation.credit|currency:'ILS':'code'}}</span>
+    <br/>
+    <strong>{{'all_payments'|translate}}:</strong>{{phone.obligation.total_payments|currency:'ILS':'code'}}
+    <br/>
+    <strong>{{'all_orders'|translate}}:</strong>{{phone.obligation.total_orders|currency:'ILS':'code'}}
+    <hr/>
+    <h3>{{'after_order'|translate}}</h3><br/>
+    <span [ngClass]="{'green':((phone.obligation.credit)-(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price)))>0,'red':((phone.obligation.credit)-(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price)))<=0}">
+    <strong>{{'credit'|translate}}:</strong>{{((phone.obligation.credit)-(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price)))|currency:'ILS':'code'}}</span>
+    <br/>
+    <strong>{{'all_orders'|translate}}:</strong>{{(phone.obligation.total_orders+(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price)))|currency:'ILS':'code'}}
+    <hr/>
+  </div>
+  <div class="col-lg-12" *ngIf="phone" style="margin-top:20px;">
+      <md-chip-list>
+          <md-chip><strong>{{'number'|translate}}</strong></md-chip>
+          <md-chip>{{phone.phone}}
+            <ng-container *ngIf="phone.moved_to_phone!='0'">
+              <span style="color:green" *ngIf="phone.accepted_moved_to_phone=='1'">&nbsp;>>&nbsp;{{phone.moved_to_phone}}</span>
+              <span style="color:red" *ngIf="phone.accepted_moved_to_phone=='0'">&nbsp;>>&nbsp;{{phone.moved_to_phone}}</span>
+            </ng-container>
+          </md-chip>
+        </md-chip-list> 
+        <md-chip-list *ngIf="selectedProduct">
+          <md-chip><strong>{{'product'|translate}}</strong><md-icon mdChipRemove (click)="resetProduct()">cancel</md-icon></md-chip>
+          <md-chip>
+                <span innerHTML="{{'prod_name_'+selectedProduct.id|translate}}"></span>
+          </md-chip> 
+          <md-chip>
+            <span style="color:blue;">
+                  (
+                    <span *ngIf="selectedProduct.days_or_months=='months'">{{selectedProduct.days_or_months_numbers}}&nbsp;{{'months'|translate}}</span> 
+                    <span *ngIf="selectedProduct.days_or_months=='days'">{{selectedProduct.days_or_months_numbers}}&nbsp;{{'days'|translate}}</span>
+                    )
+              </span>
+            </md-chip> 
+            <md-chip>
+              <span style="color:green;">
+                  {{(selectedProduct.price+(1*selectedProduct.profit))| currency:'ILS':'code' }}
+              </span>
+            </md-chip>
+        </md-chip-list> 
+        <div class="col-lg-12"  style="margin:20px 0;" *ngIf="selectedProduct">
+            <hr/>
+            <div class="col-lg-12" *ngIf="phone.obligation.credit-(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price))>(-1*(phone.obligation.obligation))">
+              <md-form-field>
+                  <textarea mdInput placeholder="{{'note'|translate}}" [(ngModel)]="note"></textarea>
+              </md-form-field>
+             
+            </div>
+            <button md-raised-button color="primary" (click)="addOrder()" [disabled]="phone.obligation.credit-(selectedProduct.price-(0.01*selectedProduct.discount*selectedProduct.price))<=(-1*(phone.obligation.obligation))">{{'reservations'|translate}}</button>
+            <button md-raised-button (click)="resetProduct()">{{'other_product'|translate}}</button>
+            <button md-raised-button (click)="viewInfo()">{{'agent_details'|translate}}</button>
+        </div>
+  </div>
+  <ng-container *ngIf="!phone.obligation">
+    <div class="col-lg-12" style="margin: 15px 5px;">
+        <md-chip-list style="display: table;width: auto;margin: auto;">
+          
+            <md-chip style="margin-bottom:10px;" style="color:red;" [selected]="true">{{'credit'|translate}}&nbsp;:&nbsp;{{0|currency:'ILS':'code'}}</md-chip>
+            </md-chip-list>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!selectedProduct && phone.obligation">
+      <div class="col-lg-12" style="margin: 15px 5px;">
+          <h4>{{'select_product'|translate}}</h4> 
+      </div>
+     
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12" *ngFor="let p of phone.products" style="margin:10px 0 10px 0;cursor:pointer;" (click)="setProduct(p)">
+          <md-card >
+              <md-card-header>
+                  <md-card-title>
+                      <h4>{{'company_name_'+p.company_id|translate}}</h4>
+                  </md-card-title>
+                  <md-card-subtitle>
+                      <p class="primary">(
+                          <span *ngIf="p.days_or_months=='months'">{{p.days_or_months_numbers}}&nbsp;{{'months'|translate}}</span> 
+                          <span *ngIf="p.days_or_months=='days'">{{p.days_or_months_numbers}}&nbsp;{{'days'|translate}}</span>
+                          )
+                      </p>
+                  </md-card-subtitle>
+                  <md-card-subtitle>
+                    <h2  class="accent">
+                        {{(p.price+(1*p.profit))| number : '1.2-2'|currency:'ILS':'code' }}
+                    </h2>
+                  </md-card-subtitle>
+                </md-card-header>
+              
+            <md-card-content>
+                <span>
+                    <strong>
+                        <span innerHTML="{{'prod_name_'+p.id|translate}}"></span>
+                    </strong>
+                </span>
+                <hr/>
+                <span>
+                    <span innerHTML="{{'prod_desc_'+p.id|translate}}"></span>
+                </span>
+            </md-card-content>
+          </md-card>
+      </div>
+  </ng-container>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>
+<span style="color:red;" *ngIf="loading">{{'wait_msg'|translate}}</span>

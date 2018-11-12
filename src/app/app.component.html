@@ -1,0 +1,102 @@
+<div dir="RTL">
+<ng-container>
+    <md-toolbar class="navbar navbar-fixed-top" >
+        <div class="button-row" style="width:100%;">
+            <button md-button color="primary" (click)="sidenav.toggle()" *ngIf="isloged()" style="min-width:70px;padding:0 10px;"><md-icon>more_vert</md-icon></button>
+            
+            <md-icon  color="primary" style="float:left;cursor:pointer;margin-right:5px;" *ngIf="isloged()"  routerLink="/התחברות" routerLinkActive="active">power_settings_new</md-icon >
+            <button md-button color="primary" *ngIf="isloged() && !isHomePage" routerLink="/" routerLinkActive="active" style="min-width:70px;padding:0 10px;"><md-icon>home</md-icon></button>
+            <button md-button color="primary" (click)="changeLan('ar')" *ngIf="lan!='ar'" style="min-width:70px;padding:0 10px;">العربيه</button>
+            <button md-button color="primary" (click)="changeLan('he')" *ngIf="lan!='he'" style="min-width:70px;padding:0 10px;">עברית</button>
+            <button md-button color="primary" (click)="changeLan('en')" *ngIf="lan!='en'" style="min-width:70px;padding:0 10px;">English</button>
+            <md-icon color="primary" style="float:left;cursor:pointer;" *ngIf="isloged() && authService.isAgent()"  routerLink="/סוכן/{{authService.getCurrentUser().id}}" routerLinkActive="active">account_circle
+            </md-icon>
+            <md-icon color="primary" mdTooltipPosition="before"
+                style="float:left;cursor:pointer;" 
+                *ngIf="isloged() && authService.isAdmin()"   mdTooltip="{{'hallo'|translate}} {{'admin'|translate}} {{authService.getCurrentUser().name}}"
+                routerLink="/עריכת-משתמש/{{authService.getCurrentUser().id}}" routerLinkActive="active">account_circle
+            </md-icon>
+            <md-icon color="primary" mdTooltipPosition="before"
+                style="float:left;cursor:pointer;" 
+                *ngIf="isloged() && authService.isWorker()"   mdTooltip="{{'hallo'|translate}} {{'worker'|translate}} {{authService.getCurrentUser().name}}"
+                routerLink="/עריכת-משתמש/{{authService.getCurrentUser().id}}" routerLinkActive="active">account_circle
+            </md-icon>
+            <md-chip-list style="display: inline-block;" *ngIf="isloged() && authService.canUpdate()" dir="RTL">
+                <md-chip class="notif notif1" mdTooltip="{{'new_orders'|translate}}" [mdMenuTriggerFor]="menu">{{count_new_orders}}</md-chip>
+                <md-chip class="notif notif4" mdTooltip="{{'cancel'|translate}}" [mdMenuTriggerFor]="menu2">{{count_cancel_orders}}</md-chip>
+                <md-chip class="notif notif2" mdTooltip="{{'mobility_numbers' | translate}}" [mdMenuTriggerFor]="menu3">{{count_trans_phones}}</md-chip>
+            </md-chip-list>
+            <md-menu #menu="mdMenu" xPosition="before" yPosition="above" dir="RTL" [overlapTrigger]="false" [ngClass]="{'dn':count_new_orders==0}">
+                <ng-container *ngIf="new_orders && new_orders.length>0">
+                    <button md-menu-item *ngFor="let n of new_orders" routerLink="/הזמנה/{{n.id}}" style="line-height: 1.3;">
+                        <span  style="float:right;color:#8BC34A;">({{n.id}})&nbsp;</span> 
+                        <span style="font-size:13px;">{{n.username}}</span><br/>
+                        <span style="font-size:9px;color:#888;float:left;">({{n.created_at}})</span>
+                    </button>
+                </ng-container>
+                
+            </md-menu>
+            <md-menu #menu2="mdMenu" xPosition="before" yPosition="above" dir="RTL" [overlapTrigger]="false" [ngClass]="{'dn':count_cancel_orders==0}">
+                <ng-container *ngIf="cancel_orders && cancel_orders.length>0">
+                    <button md-menu-item *ngFor="let n of cancel_orders" routerLink="/הזמנה/{{n.id}}" style="line-height: 1.3;">
+                        <span  style="float:right;color:rgb(232, 48, 135);">({{n.id}})&nbsp;</span> 
+                        <span style="font-size:13px;">{{n.username}}</span><br/>
+                        <span style="font-size:9px;color:#888;float:left;">({{n.cancel_from}})</span>
+                    </button>
+                </ng-container>  
+            </md-menu>
+            <md-menu #menu3="mdMenu" xPosition="before" yPosition="above" dir="RTL" [overlapTrigger]="false" [ngClass]="{'dn':count_trans_phones==0}">
+                <ng-container *ngIf="trans_phones && trans_phones.length>0">
+                    <button md-menu-item *ngFor="let n of trans_phones" routerLink="/מספר/{{n.id}}" style="line-height: 1.3;">
+                        <span  style="float:right;color:#00aced;">({{n.id}})&nbsp;</span> 
+                        <span style="font-size:13px;">{{n.phone}}>>{{n.moved_to_phone}}</span><br/>
+                        <span style="font-size:9px;color:#888;float:left;">({{n.created_at}})</span>
+                    </button>
+                </ng-container>  
+            </md-menu>
+        </div>
+    </md-toolbar>
+    <md-sidenav-container class="example-container" dir="rtl">
+        <md-sidenav #sidenav mode="side" [opened]="sno" class="example-sidenav"  dir="rtl" [ngClass]="{'dn':!isloged()}">
+            <md-list dir="RTL" (click)="!sno && sidenav.close()" *ngIf="isloged()">
+                <md-list-item><a routerLink="/טעינה-חדשה" routerLinkActive="active">{{'new_order' | translate}}</a></md-list-item> 
+                <md-list-item *ngIf="authService.isAdmin()"> <a routerLink="/הגדרות" routerLinkActive="active">{{'settings' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.isAdmin()"> <a routerLink="/הרשאות" routerLinkActive="active">{{'permissions' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"> <a routerLink="/משתמשים" routerLinkActive="active">{{'users' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"> <a routerLink="/חברות" routerLinkActive="active">{{'companies' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/לקוחות" routerLinkActive="active">{{'consumers' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/חבילות" routerLinkActive="active">{{'products' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/הנחות" routerLinkActive="active">{{'discounts' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.isAgent()"><a routerLink="/מחירון" routerLinkActive="active">{{'price_list' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/מספרי-סים" routerLinkActive="active">{{'sims' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/מספרי-טלפון" routerLinkActive="active">{{'phones' | translate}}</a></md-list-item> 
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/מינויים" routerLinkActive="active">{{'members' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.isAgent()"><a routerLink="/מינויים" routerLinkActive="active">{{'my_members' | translate}}</a></md-list-item>
+                <md-list-item><a routerLink="/תשלומים" routerLinkActive="active">{{'payments' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/הזמנות" routerLinkActive="active">{{'orders' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.isAgent()"><a routerLink="/הזמנות" routerLinkActive="active">{{'last_charges' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/ניוד-מספרים" routerLinkActive="active">{{'mobility_numbers' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/דוח-סוכנים" routerLinkActive="active">{{'agents_report' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/השוואות" routerLinkActive="active">{{'comparisons' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/הזמנת-אקסל" routerLinkActive="active">{{'excel_order' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/טעינות-אקסל" routerLinkActive="active">{{'excel_charge' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/סטאטוס-הוט-מובייל" routerLinkActive="active">{{'status_hotmobile' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/סטאטוס-סלקום" routerLinkActive="active">{{'status_cellcom' | translate}}</a></md-list-item>
+                <md-list-item *ngIf="authService.canUpdate()"><a routerLink="/חשבונות-סוכנים" routerLinkActive="active">{{'agents_acounts' | translate}}</a></md-list-item>
+                <md-list-item><a routerLink="/דוח-כללי" routerLinkActive="active">{{'general_report' | translate}}</a></md-list-item>
+            </md-list>   
+        </md-sidenav>
+        <div class="container-fluid" >
+            <div class="row">
+                <div [ngClass]="{'col-sm-12 center':true}" style="padding-top:0px;margin-bottom:70px;">
+                    <router-outlet></router-outlet> 
+                </div>
+            </div>
+        </div>
+    </md-sidenav-container>
+</ng-container>
+<span>{{'test'|translate}}</span>
+<div class="footer navbar-fixed-bottom bf" *ngIf="false">
+        <a alt='Host Gate لخدمات الويب ونظم المعلومات' title='Host Gate لخدمات الويب ونظم المعلومات' href='http://www.host-gate.org' target='_blank'><img src='assets/images/hg.png' border='0'></a>
+</div>
+</div>

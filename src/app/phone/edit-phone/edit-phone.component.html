@@ -1,0 +1,64 @@
+<div md-dialog-content dir="RTL">
+  <p>{{'edit_phone'|translate}}?</p>
+  <form novalidate [formGroup]="data.phone.phoneForm" class="form-inline">
+    <md-form-field>
+      <input mdInput tabindex="1" formControlName="phone" placeholder="{{'phone'|translate}}" />
+      <valid-err [control]="data.phone.phoneForm.controls['phone']"></valid-err>
+    </md-form-field>
+    <md-form-field>
+      <input mdInput tabindex="1" formControlName="note" placeholder="{{'note'|translate}}" />
+      <valid-err [control]="data.phone.phoneForm.controls['note']"></valid-err>
+    </md-form-field>
+    <md-form-field>
+      <md-chip-list mdPrefix #chipList >
+        <md-chip  
+          [selectable]="selectable" 
+          [removable]="removable" 
+          (remove)="initSelectedAgent()" 
+          *ngIf="selectedAgent._username!=''">
+          {{selectedAgent._username|translate}}
+          <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+        </md-chip>
+      </md-chip-list>
+      <input 
+        mdInput 
+        placeholder="{{'related_to_agent'|translate}}"
+        [mdChipInputFor]="chipList"
+        [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        [mdChipInputAddOnBlur]="addOnBlur"
+        formControlName="agent_id" 
+        aria-label="Number"  
+        [mdAutocomplete]="auto" 
+        tabindex="1"
+        (keyup)="searchAgent($event)" 
+        (focusout)="chooseAgent($event)"
+      />
+      <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+        <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;">
+          {{ option._username }}
+        </md-option>
+      </md-autocomplete>
+    </md-form-field>
+    <md-select 
+      placeholder="{{'company'|translate}}" 
+      formControlName="company_id" 
+      tabindex="1" (change)="matchProducts()">
+      <md-option *ngFor="let company of data.phone.companies" [value]="company.id">
+        {{'company_name_'+company.id|translate}}
+      </md-option>
+    </md-select>
+    <md-select 
+      placeholder="{{'product'|translate}}" 
+      formControlName="product_id" 
+      tabindex="1" 
+      *ngIf="products && products.length>0">
+      <md-option *ngFor="let product of products" [value]="product.id">
+        {{'prod_name_'+product.id|translate}}
+      </md-option>
+    </md-select>
+  </form>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!data.phone.phoneForm.valid">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>

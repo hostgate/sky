@@ -1,0 +1,270 @@
+<md-toolbar color="primary">{{'comparisons' | translate}}</md-toolbar>
+<md-toolbar>
+  
+    <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
+    <button md-button (click)="fileInput.click()" style="position: relative;
+  float: right;margin:5px 10px;" *ngIf="!fromLs">{{'phones'|translate}}<md-icon color="primary">file_upload</md-icon></button>
+  <button md-button (click)="delete_cash()" style="position: relative;
+  float: right;margin:5px 10px;" *ngIf="fromLs">{{'delete_cache'|translate}}<md-icon color="primary">delete_forever</md-icon></button>
+  <button md-button style="position: relative;
+  float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;{{selectedTab|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+</md-toolbar>
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <md-tab-group (focusChange)="changeTab($event)">
+        <md-tab label="{{'phones_statuses'|translate}}">
+          <div class="demo-tab-content">
+              <div class="example-container mat-elevation-z8">
+                  <div class="example-header">
+                      <md-form-field floatPlaceholder="never">
+                          <input mdInput placeholder="{{'search'|translate}}" #filter>
+                          <md-icon mdSuffix>search</md-icon>
+                      </md-form-field>
+                  </div>
+                  <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+                      
+                     
+                      <ng-container mdColumnDef="phone">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">  
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                                  {{row.phone}}
+                              </a>
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                                  <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                  <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                              </a> 
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                                  <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                  <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                              </a>
+                              <span *ngIf="row.id=='0'" style="color:red;">
+                                  {{row.phone}}
+                              </span>
+                          </md-cell>
+                      </ng-container>
+                      <ng-container mdColumnDef="status">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">
+                          <span *ngIf="row.status=='completed'" style="color:green;"> {{row.status|translate}}</span>
+                          <span *ngIf="row.status=='finished'"> {{row.status|translate}}</span> 
+                          <span *ngIf="row.status!='completed' && row.status!='finished'" style="color:red;"> {{row.status|translate}}</span>  
+                          </md-cell>
+                      </ng-container>
+                      <ng-container mdColumnDef="completed_date_sec">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'disconnected_date'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">
+                            <ng-container *ngIf="row.status=='without_orders' || row.status=='without_member' || row.status=='not_exist'">
+                                <span  style="color:red;">
+                                    {{row.status|translate}}
+                                </span>
+                            </ng-container>  
+                            <ng-container *ngIf="row.status=='completed'">
+                                <span  style="color:green;">
+                                    {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='cancel'">
+                                <span  style="color:red;">
+                                    {{(row.cancel_from_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='declined'">
+                                <span  style="color:red;">
+                                    {{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='disconnected'">
+                                <span  style="color:red;">
+                                    {{(row.disconnect_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container>
+                            <ng-container *ngIf="row.status=='finished'">
+                                <span>
+                                    {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container>    
+                          </md-cell>
+                      </ng-container>
+                      <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+                      <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+                  </md-table>
+                  <md-paginator #paginator [length]="phonesDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+                  </md-paginator>
+              </div>
+          </div>
+        </md-tab>
+        <md-tab label="{{'active_phones'|translate}}" isActive="true">
+          <div class="demo-tab-content">
+              <div class="example-container mat-elevation-z8">
+                  <div class="example-header">
+                      <md-form-field floatPlaceholder="never">
+                          <input mdInput placeholder="{{'search'|translate}}" #filter2>
+                          <md-icon mdSuffix>search</md-icon>
+                      </md-form-field>
+                  </div>
+                  <md-table #table [dataSource]="dataSource3" dir="RTL" mdSort>
+                      
+                     
+                      <ng-container mdColumnDef="phone">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">  
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                                  {{row.phone}}
+                              </a>
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                                <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                              </a> 
+                              <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                                <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                                <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                              </a>
+                              <span *ngIf="row.id=='0'" style="color:red;">
+                                  {{row.phone}}
+                              </span>
+                          </md-cell>
+                      </ng-container>
+                      <ng-container mdColumnDef="status">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">
+                          <span *ngIf="row.status=='completed'" style="color:green;"> {{row.status|translate}}</span>
+                          <span *ngIf="row.status=='finished'"> {{row.status|translate}}</span> 
+                          <span *ngIf="row.status!='completed' && row.status!='finished'" style="color:red;"> {{row.status|translate}}</span>  
+                          </md-cell>
+                      </ng-container>
+                      <ng-container mdColumnDef="completed_date_sec">
+                          <md-header-cell *mdHeaderCellDef md-sort-header>{{'disconnected_date'|translate}} </md-header-cell>
+                          <md-cell *mdCellDef="let row">
+                            <ng-container *ngIf="row.status=='without_orders' || row.status=='without_member' || row.status=='not_exist'">
+                                <span  style="color:red;">
+                                    {{row.status|translate}}
+                                </span>
+                            </ng-container>  
+                            <ng-container *ngIf="row.status=='completed'">
+                                <span  style="color:green;">
+                                    {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='cancel'">
+                                <span  style="color:red;">
+                                    {{(row.cancel_from_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='declined'">
+                                <span  style="color:red;">
+                                    {{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container> 
+                            <ng-container *ngIf="row.status=='disconnected'">
+                                <span  style="color:red;">
+                                    {{(row.disconnect_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container>
+                            <ng-container *ngIf="row.status=='finished'">
+                                <span>
+                                    {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                                </span>
+                            </ng-container>    
+                          </md-cell>
+                      </ng-container>
+                      <md-header-row *mdHeaderRowDef="displayedColumns2"></md-header-row>
+                      <md-row *mdRowDef="let row; columns: displayedColumns2;"></md-row>
+                  </md-table>
+                  <md-paginator #paginator2 [length]="phonesDatabase2.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+                  </md-paginator>
+              </div>
+          </div>
+        </md-tab>
+        <md-tab label="{{'disconnected_phones'|translate}}">
+            <div class="demo-tab-content">
+                <div class="example-container mat-elevation-z8">
+                    <div class="example-header">
+                      <md-form-field floatPlaceholder="never">
+                          <input mdInput placeholder="{{'search'|translate}}" #filter3>
+                          <md-icon mdSuffix>search</md-icon>
+                      </md-form-field>
+                      <button md-button  style="position: relative;
+  float: left;margin:5px 10px;" color="warn" *ngIf="toDisconnect && toDisconnect.length>0" (click)="openDisconnectDialog()">{{'do_disconnect'|translate}}&nbsp;{{'lines'|translate}}<md-icon >do_not_disturb_off</md-icon></button>
+                  </div>
+              <md-table #table [dataSource]="dataSource2" dir="RTL" mdSort>
+                  <ng-container mdColumnDef="phone">
+                      <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                      <md-cell *mdCellDef="let row">  
+                          <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                              {{row.phone}}
+                          </a>
+                          <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                              <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                              <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                          </a> 
+                          <a [routerLink]="['/מספר', row.id]" *ngIf="row.id!='0' && row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                              <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                             <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                          </a>
+                          <span *ngIf="row.id=='0'" style="color:red;">
+                              {{row.phone}}
+                          </span>
+                      </md-cell>
+                  </ng-container>
+                  <ng-container mdColumnDef="status">
+                      <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                      <md-cell *mdCellDef="let row">
+                      <span *ngIf="row.status=='completed'" style="color:green;"> {{row.status|translate}}</span>
+                      <span *ngIf="row.status=='finished'"> {{row.status|translate}}</span> 
+                      <span *ngIf="row.status!='completed' && row.status!='finished'" style="color:red;"> {{row.status|translate}}</span>  
+                      </md-cell>
+                  </ng-container>
+                  <ng-container mdColumnDef="completed_date_sec">
+                      <md-header-cell *mdHeaderCellDef md-sort-header>{{'disconnected_date'|translate}} </md-header-cell>
+                      <md-cell *mdCellDef="let row">
+                        <ng-container *ngIf="row.status=='without_orders' || row.status=='without_member' || row.status=='not_exist'">
+                            <span  style="color:red;">
+                                {{row.status|translate}}
+                            </span>
+                        </ng-container>  
+                        <ng-container *ngIf="row.status=='completed'">
+                            <span  style="color:green;">
+                                {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                            </span>
+                        </ng-container> 
+                        <ng-container *ngIf="row.status=='cancel'">
+                            <span  style="color:red;">
+                                {{(row.cancel_from_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                            </span>
+                        </ng-container> 
+                        <ng-container *ngIf="row.status=='declined'">
+                            <span  style="color:red;">
+                                {{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                            </span>
+                        </ng-container> 
+                        <ng-container *ngIf="row.status=='disconnected'">
+                            <span  style="color:red;">
+                                {{(row.disconnect_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                            </span>
+                        </ng-container>
+                        <ng-container *ngIf="row.status=='finished'">
+                            <span>
+                                {{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                            </span>
+                        </ng-container>
+                      </md-cell>
+                  </ng-container>
+                  <ng-container mdColumnDef="id">
+                      <md-header-cell *mdHeaderCellDef (click)="selectedAll()"><strong style="cursor:pointer;">{{'choose_all'|translate}}</strong></md-header-cell>
+                      <md-cell *mdCellDef="let row">
+                          <md-checkbox color="primary" [(ngModel)]="row.to_disconnect" (change)="check()">{{'do_disconnect'|translate}}!</md-checkbox>
+                      </md-cell>
+                  </ng-container>
+                  <md-header-row *mdHeaderRowDef="displayedColumns3"></md-header-row>
+                  <md-row *mdRowDef="let row; columns: displayedColumns3;"></md-row>
+              </md-table>
+              <md-paginator #paginator3 [length]="phonesDatabase3.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+              </md-paginator>
+          </div>
+          </div>
+        </md-tab>
+      </md-tab-group>
+    </div>
+  </div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

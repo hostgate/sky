@@ -1,0 +1,209 @@
+@import 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css';
+@import '//cdn.rawgit.com/morteza/bootstrap-rtl/v3.3.4/dist/css/bootstrap-rtl.min.css';
+@import 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css';
+.navbar-inverse {
+    background-image: -webkit-linear-gradient(top,#fff 0,#fff 100%);
+    background-image: -o-linear-gradient(top,#fff 0,#fff 100%);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#fff),to(#fff));
+    background-image: linear-gradient(to bottom,#fff 0,#fff 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#fff', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-radius: 4px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.container-fluid {
+    padding-top: 50px;
+}
+.sidenav-container{
+    top:65px;
+    position: relative;
+    height: auto;
+    min-height: 700px;
+}
+.sidenav {
+    padding: 0px;
+  }
+.ui-dialog .ui-dialog-title {
+    float: right!important;
+    margin: .3em 16px .1em 0;
+}
+
+
+/*
+ * Base structure
+ */
+
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+
+body {
+    padding-top: 50px;
+}
+
+
+/*
+   * Global add-ons
+   */
+
+.sub-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+
+/*
+   * Top navigation
+   * Hide default border to remove 1px line.
+   */
+
+.navbar-fixed-top {
+    border: 0;
+}
+
+
+/*
+   * Sidebar
+   */
+
+
+/* Hide for mobile, show later */
+
+.sidebar {
+    /*display: none;*/
+}
+
+@media (min-width: 992px) {
+    .col-md-offset-0 {
+        margin-right: 25%;
+        margin-left: 0;
+        margin-left: 25%;
+    }
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 51px;
+        bottom: 0;
+        right: 0;
+        z-index: 1000;
+        display: block;
+        padding: 20px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        /* Scrollable contents if viewport is shorter than content. */
+        background-color: #fff;
+        border-right: 1px solid #eee;
+    }
+}
+
+
+/* Sidebar navigation */
+
+.nav-sidebar {
+    margin-right: -21px;
+    /* 20px padding + 1px border */
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+
+.nav-sidebar>li>a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+.nav-sidebar>.active>a,
+.nav-sidebar>.active>a:hover,
+.nav-sidebar>.active>a:focus {
+    color: #fff;
+    background-color: #428bca;
+}
+
+
+/*
+   * Main content
+   */
+
+.main {
+    padding: 20px;
+}
+.mat-card {
+    margin: 10px 0 10px 0;
+}
+@media (min-width: 768px) {
+    .main {
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+
+.main .page-header {
+    margin-top: 0;
+}
+
+
+/*
+   * Placeholder dashboard ideas
+   */
+
+.placeholders {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.placeholders h4 {
+    margin-bottom: 0;
+}
+
+.placeholder {
+    margin-bottom: 20px;
+}
+
+.placeholder img {
+    display: inline-block;
+    border-radius: 50%;
+}
+.dn {
+    display: none!important;
+}
+.mat-menu-content{
+    margin-top: 60px!important;
+}
+
+@media (max-width: 768px) {
+   /* .sidebar{
+       display: none!important;
+   }
+   .sidebar.dn{
+    display: block!important;
+} */
+}
+.home>.row>div .mat-card-header-text {
+    margin: 0 8px;
+    text-align: center!important;
+    width: 100%!important;
+}
+.mat-card-content{
+    color:#3f51b5!important;
+}
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+.example-container {
+    position: absolute;
+    top: 50px;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+  }
+  
+  .example-sidenav {
+    display: flex;
+    align-items: top;
+    justify-content: right;
+    width: 200px;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    /* background: rgba(63, 81, 181, 0.1); */
+    /* background: rgba(255, 255, 255, 0.1); */
+  background:  #f5f5f5;
+  }

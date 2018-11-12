@@ -1,0 +1,75 @@
+input.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+    border: 1px solid green;
+    border-right: 5px solid green!important;
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+    border: 1px solid red;
+    border-right: 5px solid red!important;
+}
+
+.ui-calendar .ui-inputtext {
+    margin: 0;
+    outline: medium none;
+    padding: 4px;
+    font-weight: normal;
+    width: 100%!important;
+    border: 0!important;
+}
+
+.calClass {
+    padding: 0!important;
+}
+/* Structure */
+.example-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+  }
+  
+  .example-header {
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    padding-left: 24px;
+    font-size: 20px;
+  }
+  
+  .example-header {
+    min-height: 64px;
+    display: flex;
+    align-items: baseline;
+    padding: 8px 24px 0;
+    font-size: 20px;
+    justify-content: space-between;
+  }
+  
+  .mat-form-field {
+    font-size: 14px;
+    flex-grow: 1;
+    margin-left: 32px;
+  }
+  
+  .mat-table {
+    overflow: auto;
+    max-height: 500px;
+  }
+  .discountshide{
+    display: none;
+  }
+  .mat-chip:not(.mat-basic-chip) {
+    transition: box-shadow 280ms cubic-bezier(.4,0,.2,1);
+    display: inline-flex;
+    padding: 7px 12px;
+    border-radius: 24px;
+    align-items: center;
+    cursor: default;
+    margin: 0 8px 3px 0;
+}
+@media (max-width: 600px){
+  .mat-toolbar,.example-container {
+      min-width: 280px!important;
+  }
+}

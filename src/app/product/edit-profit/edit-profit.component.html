@@ -1,0 +1,16 @@
+<div md-dialog-content dir="RTL">
+  <p>{{'update_profit'|translate}}?</p>
+  <form novalidate [formGroup]="profitForm"  class="form-inline">
+    <div class="form-group">
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="profit" placeholder="{{'extension'|translate}}" type="number" min="0" max="100"/>
+        <span mdSuffix>ש"ח</span>
+        <valid-err [control]="profitForm.controls['profit']"></valid-err>
+      </md-form-field>
+    </div>
+  </form>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!profitForm.valid">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>

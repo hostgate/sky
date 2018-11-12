@@ -1,0 +1,11 @@
+<div md-dialog-content dir="RTL" style="width:auto!important;">
+  <p>{{'add_note'|translate}}?</p>
+  <md-form-field >
+    <textarea mdInput [(ngModel)]="note" placeholder="{{'note'|translate}}" rows="7"></textarea>
+  </md-form-field>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!valid()">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

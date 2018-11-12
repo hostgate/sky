@@ -1,0 +1,54 @@
+<div class="first"> 
+  <md-toolbar color="primary">{{'agent'|translate}}:&nbsp;{{agent.firstname +' '+agent.lastname}}</md-toolbar>
+  <div class="row">
+    <div class="col-xs-6 col-sm-6 col-md-6">
+      <dl>
+        <dt>{{'username'|translate}} </dt>
+        <dd>{{agent.username}}</dd>
+        <dt>{{'birthday'|translate}}</dt>
+        <dd>{{(agent.birthday_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}</dd>
+        <dt *ngIf="authService.canUpdate()">{{'payment_art'|translate}} ({{payment_art|translate}})</dt>
+        <dd *ngIf="authService.canUpdate()">
+            <select  [(ngModel)]="payment_art" tabindex="1" (change)="changePaymentArt($event.target.value);">
+                <option value="others">{{'others'|translate }}</option> 
+                <option  value="direct_debit">{{'direct_debit'|translate }}</option>
+                <option  value="credit_card">{{'credit_card'|translate }}</option> 
+            </select>
+        </dd>
+        <!-- <br/><br/>
+        <dt *ngIf="authService.canUpdate()">
+          <ng-container *ngIf="agent && (!agent.agreement || agent.agreement=='')">{{'agreement'|translate}}</ng-container>
+          <ng-container *ngIf="agent && agent.agreement && agent.agreement!=''">
+            <a href="https://www.skypanel.net/api/agreement/{{agent.id}}/{{agent.agreement}}" style="cursor: pointer;">
+              {{'agreement'|translate}}
+            </a>
+          </ng-container>
+        </dt>
+        <dd *ngIf="authService.canUpdate()">
+          <ng-container>
+              <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
+              <button md-button (click)="fileInput.click()" style="position: relative;margin-bottom:5px;">{{'upload'|translate}} {{'agreement'|translate}}<md-icon color="primary">file_upload</md-icon></button>
+          </ng-container>
+        </dd> -->
+      </dl>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6">
+      <dl >
+        <dt>{{'mobile'|translate}}</dt>
+        <dd>{{agent.mobile}}</dd>
+        <dt>{{'phone'|translate}}</dt>
+        <dd>{{agent.phone}}</dd>
+        <dt>{{'email'|translate}}</dt>
+        <dd>{{agent.email}}</dd>
+        <ng-container *ngIf="agent.address && agent.address!=''">
+          <dt>{{'address'|translate}}</dt>
+          <dd>{{agent.address}}</dd>
+        </ng-container>
+      </dl>
+    </div>
+  </div>
+  <div class="button-row" style="margin:20px;">
+    <md-icon color="primary" (click)="openUpdate()" style="cursor:pointer;">mode_edit</md-icon>
+    <button md-button color="primary" (click)="openPasswordUpdate()">{{'password_update'|translate}}</button>
+  </div>
+</div>

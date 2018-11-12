@@ -1,0 +1,84 @@
+<md-toolbar color="primary">{{'phones' | translate}}</md-toolbar>
+<md-toolbar *ngIf="authService.canUpdate()">
+    <button md-button (click)="openAddDialog()" style="position: relative;
+  float: left;margin-bottom:5px;" ><md-icon color="primary">add_circle</md-icon></button>
+    <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
+    <button md-button (click)="fileInput.click()" style="position: relative;
+  float: left;margin-bottom:5px;">{{'phones'|translate}}<md-icon color="primary">file_upload</md-icon></button>
+  <input type="file" #fileInput1 placeholder="Upload file..." style="display:none;" (change)="upload2()" />
+  <button md-button (click)="fileInput1.click()" style="position: relative;
+float: left;margin-bottom:5px;margin-right:10px;">{{'internet'|translate}}<md-icon color="primary">file_upload</md-icon></button>
+<button md-button style="position: relative;
+float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="example-header">
+        <md-form-field floatPlaceholder="never">
+            <input mdInput placeholder="{{'search'|translate}}" #filter>
+            <md-icon mdSuffix>search</md-icon>
+        </md-form-field>
+
+    </div>
+    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+        <ng-container mdColumnDef="phone">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">  
+                <button md-button color="primary" [routerLink]="['/מספר', row.id]" *ngIf="row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">{{row.phone}}</button>
+                <button md-button color="primary" [routerLink]="['/מספר', row.id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                    <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                    <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                </button>
+                <button md-button color="primary" [routerLink]="['/מספר', row.id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                    <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                    <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                </button>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="agent_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':!authService.canUpdate()}">{{'agent'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row" [ngClass]="{'dn':!authService.canUpdate()}">
+                <button md-button color="primary" [routerLink]="['/סוכן', row.agent_id]" *ngIf="row.agent_name!='-'">{{row.agent_name}}</button>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="company_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}}&nbsp;/&nbsp;{{'product'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">{{'company_name_'+row.company_id|translate}}&nbsp;/
+                <ng-container *ngIf="row.product_id && row.product_id>0">
+                        &nbsp;{{'prod_name_'+row.product_id|translate}}
+                </ng-container>     
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="internet">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'internet'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">
+                <span *ngIf="row.internet==0">-</span>
+                <span *ngIf="row.internet>0"> {{row.internet}} {{'giga'|translate}} | 
+                    <span style="color:green">
+                        {{'last_update'|translate}}: &nbsp;
+                        {{(row.internet_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+
+                    </span>
+                </span>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="used">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'used'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{row.used|yn|translate}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="id">
+            <md-header-cell *mdHeaderCellDef md-sort-header >#</md-header-cell>
+            <md-cell *mdCellDef="let row">
+                <md-icon *ngIf="row.used=='0' && authService.canUpdate()" (click)="edit(row)" color="primary" style="cursor:pointer;">mode_edit</md-icon>
+                <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;" *ngIf="row.used=='0' && authService.canUpdate()" >delete</md-icon>
+                <button md-raised-button color="primary" [routerLink]="['/הזמנה-חדשה', row.id]" *ngIf="row.used=='1' && authService.isAgent()">{{'new_order'|translate}}</button>
+            </md-cell>
+           
+        </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="phonesDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+    </md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

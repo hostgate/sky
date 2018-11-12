@@ -1,0 +1,44 @@
+
+<h2 class="sub-header"  *ngIf="consumer">{{'update_consumer'|translate}}:{{consumer.firstname}} {{consumer.lastname}}</h2>
+<div class="col-md-12">
+    <form novalidate [formGroup]="consumerForm" (ngSubmit)="save()" autocomplete="off" *ngIf="consumer">
+        
+        <md-form-field>
+            <input mdInput formControlName="firstname" placeholder="{{'firstname'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['firstname']"></valid-err>
+        </md-form-field>
+        <md-form-field>
+            <input mdInput formControlName="lastname" placeholder="{{'lastname'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['lastname']"></valid-err>
+        </md-form-field>
+        <md-select placeholder="{{'related_to_agent'|translate}}" formControlName="parent" tabindex="1" >
+            <md-option *ngFor="let e of agents"  value="{{e.id}}">
+                {{e._username|translate}}
+            </md-option>
+        </md-select>
+        <valid-err [control]="consumerForm.controls['parent']"></valid-err>
+        <md-form-field>
+            <input mdInput formControlName="national_id" placeholder="{{'personal_id'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['national_id']"></valid-err>
+        </md-form-field>
+        <md-form-field>
+            <input mdInput [mdDatepicker]="picker" placeholder="{{'birthday'|translate}}" formControlName="birthday">
+            <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+            <md-datepicker #picker startView="year" [startAt]="startDate"></md-datepicker>
+        </md-form-field>
+        <md-form-field>
+            <input mdInput formControlName="email" placeholder="{{'email'|translate}}"/>
+        </md-form-field>
+            <md-form-field>
+            <input mdInput formControlName="phone" placeholder="{{'phone'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['phone']"></valid-err>
+        </md-form-field>
+        <button md-raised-button [disabled]="!consumerForm.valid" type="submit" >{{'save'|translate}}</button>
+    </form>
+</div>
+
+<img *ngIf="loading"  style="position:absolute;top:200px;left:50%;"  src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+/>
+<BR/>
+<BR/>
+<BR/>

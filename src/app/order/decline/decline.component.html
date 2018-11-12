@@ -1,0 +1,15 @@
+<h1 md-dialog-title dir="RTL" color="warn">{{'decline_order'|translate}}</h1>
+<div md-dialog-content  dir="RTL">
+  <p>{{'do_you_want_to_decline_order'|translate}}</p>
+  <p><label>{{'product'|translate}}: </label> 
+    <span *ngIf="lan=='he' || data.order.product_name_ar==''"> {{data.order.product_name}}</span>
+    <span *ngIf="lan=='ar' && data.order.product_name_ar!=''"> {{data.order.product_name_ar}}</span>
+  </p>
+  <p><label>{{'phone'|translate}}: </label> {{data.order.phone}}</p>
+  <p><label>{{'sim'|translate}}: </label> {{data.order.sim}}</p>
+</div>
+<div md-dialog-actions  dir="RTL">
+  <button md-button [md-dialog-close]="data" tabindex="2" color="warn" (click)="decline(data.id,todecline.value)">{{'yes'|translate}}</button>
+  <button md-button (click)="onNoClick()" tabindex="-1">{{'no'|translate}}</button>
+</div>
+<input type="hidden" value="{{'declined'|translate}}" #todecline/>

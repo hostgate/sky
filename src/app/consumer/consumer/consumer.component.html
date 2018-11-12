@@ -1,0 +1,53 @@
+<md-toolbar color="primary">{{'consumers_list'|translate}}</md-toolbar>
+<md-toolbar>
+    <button md-button  routerLink="/לקוח-חדש" routerLinkActive="active" style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;"><md-icon color="primary">add_circle</md-icon></button>
+    <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="example-header">
+        <md-form-field floatPlaceholder="never">
+            <input mdInput placeholder="{{'search'|translate}}" #filter>
+            <md-icon mdSuffix>search</md-icon>
+        </md-form-field>
+    </div>
+    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+        
+        
+        <ng-container mdColumnDef="firstname">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'consumer_name'|translate}}</md-header-cell>
+            <md-cell *mdCellDef="let row">  
+                <button [routerLink]="['/לקוח', row.id]" md-raised-button color="primary">{{row.firstname}} {{row.lastname}}</button>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="parent_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':authService.isAgent()}">{{'agent_name'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row" [ngClass]="{'dn':authService.isAgent()}"> 
+                <button [routerLink]="['/סוכן', row.parent]" md-raised-button color="primary">{{row.parent_name}}</button>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="phone">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{row.phone|translate}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="created_at">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'consumer_created_at'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{row.created_at}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="id">
+                <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                
+                <md-cell *mdCellDef="let row" > 
+                    <md-icon [routerLink]="['/עריכת-לקוח', row.id]" routerLinkActive="active" color="primary" style="cursor:pointer;">mode_edit</md-icon>
+                    <md-icon (click)="deleteM(row.id)" color="warn" style="cursor:pointer;" *ngIf="!row.has_orders">delete</md-icon> 
+                </md-cell>
+            </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="consumersDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+    </md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

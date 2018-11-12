@@ -1,0 +1,26 @@
+<div class="first"> 
+        <md-toolbar color="primary">{{'consumer'|translate}}:&nbsp;{{customer.firstname +' '+customer.lastname}}</md-toolbar>
+        <div class="row">
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <dl>
+              <dt>{{'username'|translate}}</dt>
+              <dd>{{customer.username}}</dd>
+              <dt>{{'personal_id'|translate}}</dt>
+              <dd>{{customer.national_id}}</dd>
+              <dt>{{'birthday'|translate}}</dt>
+              <dd>{{(customer.birthday_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}</dd>
+            </dl>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <dl >
+              <dt>{{'mobile'|translate}}</dt>
+              <dd>{{customer.mobile}}</dd>
+              <dt>{{'phone'|translate}}</dt>
+              <dd>{{customer.phone}}</dd>
+              <dt>{{'email'|translate}}</dt>
+              <dd>{{customer.email}}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      

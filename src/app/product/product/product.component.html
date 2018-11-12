@@ -1,0 +1,60 @@
+<md-toolbar color="primary">{{'product_list'|translate}}</md-toolbar>
+<md-toolbar><button md-button (click)="openAddDialog()" style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;"><md-icon color="primary">add_circle</md-icon></button>
+    <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+  </md-toolbar>
+ 
+
+ 
+<div class="example-container mat-elevation-z8">
+        <div class="example-header">
+            <md-form-field floatPlaceholder="never">
+                <input mdInput placeholder="{{'search'|translate}}" #filter>
+                <md-icon mdSuffix>search</md-icon>
+            </md-form-field>
+        </div>
+        <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+            <ng-container mdColumnDef="name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'name'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">
+                    <span innerHTML="{{'prod_name_'+row.id|translate}}"></span>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="description">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'description'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                        <span innerHTML="{{'prod_desc_'+row.id|translate}}"></span>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="price">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'price'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{row.price}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="days_or_months">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'interval'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                    <span *ngIf="row.days_or_months=='months'">{{row.days_or_months_numbers}}&nbsp;{{'months'|translate}}</span> 
+                    <span *ngIf="row.days_or_months=='days'">{{row.days_or_months_numbers}}&nbsp;{{'days'|translate}}</span> 
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="company_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">  {{'company_name_'+row.company_id|translate}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="id">
+                <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                <md-cell *mdCellDef="let row">
+                    <md-icon (click)="openEditDialog(row.id)" color="primary" style="cursor:pointer;">mode_edit</md-icon>
+                    <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;">delete</md-icon>
+                    <button md-raised-button color="warn" *ngIf="row.active=='1'" (click)="active(row)">{{'block'|translate}}</button>
+                    <button md-raised-button color="primary" *ngIf="row.active=='0'" (click)="active(row)">{{'unblock'|translate}}</button>
+                </md-cell>
+            </ng-container>
+            <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+            <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+        </md-table>
+        <md-paginator #paginator [length]="productsDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+        </md-paginator>
+    </div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

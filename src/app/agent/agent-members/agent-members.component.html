@@ -1,0 +1,89 @@
+<div  class="first">
+  <md-toolbar color="primary">{{'members'|translate}}</md-toolbar>
+  <md-toolbar>
+      <button md-button (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+  </md-toolbar>
+  <div class="example-container mat-elevation-z8">
+      <div class="example-header">
+          <md-form-field floatPlaceholder="never">
+              <input mdInput placeholder="{{'search'|translate}}" #filter1>
+              <md-icon mdSuffix>search</md-icon>
+          </md-form-field>
+      </div>
+      <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+          <ng-container mdColumnDef="id">
+              <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+              <md-cell *mdCellDef="let row" >
+                  {{row.id}} 
+                </md-cell>
+          </ng-container>
+          <ng-container mdColumnDef="consumer_name">
+              <md-header-cell *mdHeaderCellDef md-sort-header>{{'consumer'|translate}} </md-header-cell>
+              <md-cell *mdCellDef="let row">{{row.consumer_name}}</md-cell>
+          </ng-container>
+          <ng-container mdColumnDef="phone">
+              <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}}</md-header-cell>
+              <md-cell *mdCellDef="let row">
+                <span *ngIf="row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                    <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.phone}}</button>
+                </span>
+                <span *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                    <ng-container *ngIf="authService.canUpdate(); else a1">
+                        <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">
+                            <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                            <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                        </button>
+                    </ng-container>
+                    <ng-template #a1><button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.moved_to_phone}}</button></ng-template>
+                </span> 
+                <span  *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                    <ng-container *ngIf="authService.canUpdate(); else a2">
+                        <button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">
+                            <ng-container *ngIf="row.moved_to_phone">{{row.moved_to_phone}}</ng-container>
+                            <ng-container *ngIf="!row.moved_to_phone">{{row.phone}}</ng-container>
+                        </button>
+                    </ng-container>
+                    <ng-template #a2><button md-button [routerLink]="['/מספר', row.phone_id]" color="primary">{{row.moved_to_phone}}</button></ng-template>
+                </span>
+              </md-cell>
+          </ng-container>
+          <ng-container mdColumnDef="has_orders">
+              <md-header-cell *mdHeaderCellDef md-sort-header>{{'product'|translate}}</md-header-cell>
+              <md-cell *mdCellDef="let row">
+                  <ng-container *ngIf="row.has_orders">
+                      <strong>{{'company_name_'+row.company_id|translate}}</strong>&nbsp;/&nbsp;
+                      <span>{{'prod_name_'+row.product_id|translate}}</span>
+                  </ng-container>  
+              </md-cell>
+          </ng-container>
+           <ng-container mdColumnDef="status" >
+              <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}}</md-header-cell>
+              <md-cell *mdCellDef="let row">
+                  <ng-container *ngIf="row.has_orders">
+                      {{row.status|translate}} 
+                      <span *ngIf="row.status=='completed'">
+                        &nbsp;{{'until'|translate}}<br/>{{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                      </span>
+                  </ng-container>
+               </md-cell>
+          </ng-container> 
+          <ng-container mdColumnDef="order_id" >
+              <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+              <md-cell *mdCellDef="let row">
+                  <ng-container *ngIf="row.has_orders">
+                      <md-icon mdTooltip="{{'order'|translate}}" color="primary" style="cursor:pointer;" [routerLink]="['/הזמנה', row.order_id]" routerLinkActive="active">info</md-icon>    
+                  </ng-container>
+                  <ng-container *ngIf="!row.has_orders">
+                      <span style="color:red;font-weight:bolder;">
+                          {{'has_no_orders'|translate}}
+                      </span>
+                    </ng-container>
+               </md-cell>
+          </ng-container> 
+          <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+          <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+      </md-table>
+      <md-paginator #paginator1 [length]="db.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+      </md-paginator>
+  </div>
+</div>

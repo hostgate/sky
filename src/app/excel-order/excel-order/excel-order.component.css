@@ -1,0 +1,19 @@
+.mat-select,.mat-form-field {
+    display: block;
+    width: 100%;
+}
+.dn {
+    display: none!important;
+}
+md-select{
+    margin-bottom: 10px;
+}
+md-slide-toggle{
+    display: block;
+}
+.table-success, .table-success>td, .table-success>th {
+    background-color: #c3e6cb!important;
+}
+.table-danger, .table-danger>td, .table-danger>th {
+    background-color: #f5c6cb!important;
+}

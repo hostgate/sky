@@ -1,0 +1,10 @@
+<h1 md-dialog-title dir="RTL" color="warn">{{'confirm_transfer'|translate}}!!</h1>
+<div md-dialog-content  dir="RTL">
+  <p>{{'do_you_want_to_confirm_transfer'|translate}}</p>
+  <p><label>{{'phone'|translate}}: </label> {{data.phone.phone}}</p>
+  <p><label>{{'moved_to_phone'|translate}}: </label> {{data.phone.moved_to_phone}}</p>
+<div md-dialog-actions  dir="RTL">
+  <button md-button [md-dialog-close]="data" tabindex="2" color="primary" (click)="complete(data.phone,tocomplete.value)">{{'yes'|translate}}</button>
+  <button md-button (click)="onNoClick()" tabindex="-1">{{'no'|translate}}</button>
+</div>
+<input type="hidden" value="{{'ok'|translate}}" #tocomplete/>

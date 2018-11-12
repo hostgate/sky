@@ -1,0 +1,14 @@
+<div md-dialog-content dir="RTL">
+    <p>{{'obligation_update'|translate}}</p>
+    <form novalidate [formGroup]="obligationForm"  class="form-inline">
+      <md-form-field>
+        <input mdInput tabindex="1" formControlName="obligation" placeholder="{{'obligation'|translate}}"/>
+        <valid-err [control]="obligationForm.controls['obligation']"></valid-err>
+      </md-form-field>
+    </form>
+  </div>
+  <div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!obligationForm.valid">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+  </div>
+  

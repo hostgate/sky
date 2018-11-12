@@ -1,0 +1,18 @@
+<div style="width:100%;text-align:center">
+<md-chip-list *ngIf="obligation" style="display: table;width: auto;margin: auto;">
+  <md-chip style="margin-bottom:10px;" >
+    <span style="color:green" *ngIf="obligation.credit>0">
+        {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+    </span>
+    <span *ngIf="obligation.credit==0">
+        {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+    </span>
+    <span style="color:red" *ngIf="obligation.credit<0">
+        {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+    </span>
+    <md-icon style="color:green;" *ngIf="obligation.credit>0">arrow_drop_up</md-icon>
+    <md-icon style="color:red;" *ngIf="obligation.credit<0">arrow_drop_down</md-icon>
+  </md-chip>
+  <md-chip style="margin-bottom:10px;">{{'obligation'|translate}}&nbsp;:&nbsp;{{(obligation.obligation?obligation.obligation:0)|currency:'ILS':'code'}}</md-chip>
+</md-chip-list>
+</div>

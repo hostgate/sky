@@ -1,0 +1,34 @@
+<div  class="first">
+  <md-toolbar color="primary">{{'agreements'|translate}}&nbsp;<md-icon (click)="openAgreementAdd()" style="cursor:pointer;" *ngIf="authService.canUpdate()">add_circle</md-icon></md-toolbar> 
+  <div class="example-container mat-elevation-z8">
+      <div class="example-header">
+          <md-form-field floatPlaceholder="never">
+              <input mdInput placeholder="{{'search'|translate}}" #filter>
+              <md-icon mdSuffix>search</md-icon>
+          </md-form-field>
+      </div>
+      <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+        <ng-container mdColumnDef="id">
+            <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+            <md-cell *mdCellDef="let row"><md-icon (click)="delete(row)" color="warn" style="cursor:pointer;" *ngIf="authService.canUpdate();">delete</md-icon></md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="title">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'agreement'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"><a href="{{row.url}}" style="cursor: pointer;">{{row.title}}</a></md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="created_at">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'created_at'|translate}}</md-header-cell>
+            <md-cell *mdCellDef="let row">{{row.created_at}}</md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="add_by">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'add_by'|translate}}</md-header-cell>
+            <md-cell *mdCellDef="let row">
+                {{row.created_by_name}}    
+            </md-cell>
+        </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+      </md-table>
+      <md-paginator #paginator [length]="db.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]"></md-paginator>
+  </div>
+</div>

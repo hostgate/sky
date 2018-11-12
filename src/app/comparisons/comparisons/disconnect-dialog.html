@@ -1,0 +1,11 @@
+<h1 md-dialog-title dir="RTL" color="warn">{{'do_disconnect'|translate}}&nbsp;{{'lines'|translate}}</h1>
+<div md-dialog-content  dir="RTL" style="max-height: 200px;overflow-y: scroll;">
+  <p>{{'do_you_want_to_disconnect_lines'|translate}}</p>
+  <p *ngFor="let phone of data.data.toDisconnectNumbers">{{phone}}</p>
+  
+</div>
+<div md-dialog-actions  dir="RTL">
+  <button md-button [md-dialog-close]="data" tabindex="2" color="warn" (click)="disconnect(todelete.value)">{{'yes'|translate}}</button>
+  <button md-button (click)="onNoClick()" tabindex="-1">{{'no'|translate}}</button>
+</div>
+<input type="hidden" value="{{'do_disconnect'|translate}}" #todelete/>

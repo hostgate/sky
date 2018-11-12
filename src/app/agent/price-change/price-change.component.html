@@ -1,0 +1,40 @@
+<div  class="first" style="height:100%;">
+  <md-toolbar color="primary">{{'settings'|translate}}</md-toolbar>
+  <br/>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <mat-slide-toggle [checked]="agent.change_price==1" (change)="change($event)" color="primary">
+          {{'option_to_increase_package_price'|translate}}
+          &nbsp;<strong>({{count_porducts_with_extension}}&nbsp;{{'products'|translate}})</strong>
+        </mat-slide-toggle>
+        <button md-raised-button color="primary" *ngIf="agent.change_price==0 && count_porducts_with_extension!=0" (click)="ResetPorductsWithExtension()">{{'rest_porducts_with_extension'|translate}}</button>
+      </div>
+      <div class="col-lg-12">
+        <mat-slide-toggle [checked]="agent.block_my_members==1" (change)="changeBlockMembers($event)" color="primary">
+          {{'block_mebers_to_others'|translate}}
+          &nbsp;<strong>({{get_count_blocked_members}}&nbsp;{{'members'|translate}})</strong>
+        </mat-slide-toggle>
+        <button md-raised-button color="primary" *ngIf="agent.block_my_members==0 && get_count_blocked_members!=0" (click)="ResetBlockedMembers()">{{'rest_blocked_members'|translate}}</button>
+      </div>
+      <div class="col-lg-12">
+        <mat-slide-toggle [checked]="agent.allow_account_exception=='1'" (change)="allowAccountException($event)" color="primary">
+          {{'allow_account_exception'|translate}}
+          &nbsp;
+        </mat-slide-toggle>
+      </div>
+      <div class="col-lg-12">
+        <mat-slide-toggle [checked]="agent.receiving_messages=='1'" (change)="receivingMessages($event)" color="primary">
+          {{'receiving_messages'|translate}}
+          &nbsp;
+        </mat-slide-toggle>
+      </div> 
+      <div class="col-lg-12">
+          <mat-slide-toggle [checked]="agent.rent=='1'" (change)="isRent($event)" color="primary">
+            {{'rent'|translate}}
+            &nbsp;
+          </mat-slide-toggle>
+        </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,106 @@
+<div md-dialog-content dir="RTL" style="overflow:hidden;">
+    <p>{{'new_order'|translate}} </p>
+    <form novalidate [formGroup]="orderForm" class="form-inline">
+        <md-form-field>
+            <img mdSuffix
+              *ngIf="memberSearch"
+              src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+            />
+            <md-chip-list mdPrefix #chipList >
+              <md-chip  [selectable]="selectable" [removable]="removable" (remove)="resetMember()" *ngIf="member.phone!=''">
+                {{member.phone|translate}}
+                <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+              </md-chip>
+            </md-chip-list>
+            <input 
+              mdInput 
+              placeholder="{{'phone_number'|translate}}"
+              [mdChipInputFor]="chipList"
+              [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [mdChipInputAddOnBlur]="addOnBlur"
+              formControlName="member_id" 
+              aria-label="Number"  
+              [mdAutocomplete]="auto" 
+              tabindex="1"
+              (keyup)="searchMember($event)" 
+              (focusout)="chooseMember($event)" 
+            />
+            <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayMemberFn">
+              <md-option *ngFor="let option of filteredMemberOptions|async" [value]="option" style="text-align:right;">
+                {{ option.phone }}
+              </md-option>
+            </md-autocomplete>
+          </md-form-field>
+          <md-form-field *ngIf="member.free!=false && member.id!=0">
+            <img mdSuffix
+              *ngIf="memberAgent" 
+              src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+            />
+            <md-chip-list mdPrefix #chipList >
+              <md-chip  [selectable]="selectable" [removable]="removable" (remove)="resetAgent()" *ngIf="agent._username!=''">
+                {{agent._username|translate}}
+                <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+              </md-chip>
+            </md-chip-list>
+            <input 
+              mdInput 
+              placeholder="{{'agent'|translate}}"
+              [mdChipInputFor]="chipList"
+              [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              [mdChipInputAddOnBlur]="addOnBlur"
+              formControlName="agent_id" 
+              aria-label="Number"  
+              [mdAutocomplete]="auto" 
+              tabindex="1"
+              (keyup)="searchAgent($event)" 
+              (focusout)="chooseAgent($event)" 
+            />
+            <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayAgentFn">
+              <md-option *ngFor="let option of filteredAgentOptions|async" [value]="option" style="text-align:right;">
+                {{ option._username }}
+              </md-option>
+            </md-autocomplete>
+          </md-form-field>
+        <md-form-field  *ngIf="member.free==false">
+          <md-chip-list mdPrefix #chipList>
+              <md-chip>
+                <strong>{{'member_related_agent'|translate}}</strong>&nbsp;:{{member.agent_name}}
+              </md-chip>
+          </md-chip-list>
+          <input type="hidden" formControlName="agent_id" value="{{member.agent_id}}"/>
+        </md-form-field>
+        <div *ngIf="agentObligo!=null" >
+          <p [ngClass]="{'_green': agentObligo.credit>0,'_red': agentObligo.credit<=0}">
+            <b>{{'favor'|translate}}:</b>&nbsp;{{agentObligo.credit|currency:'ILS':'code'}}
+          </p>
+          <p [ngClass]="{'_green': agentObligo.credit+agentObligo.obligation>0,'_red': agentObligo.credit+agentObligo.obligation<=0}">
+            <b>{{'allowed_to_use'|translate}}:</b>&nbsp;{{agentObligo.credit+agentObligo.obligation|currency:'ILS':'code'}}
+          </p>
+        </div>
+        <md-select *ngIf="member && member.id>0" placeholder="{{'product'|translate}}" formControlName="product_id" tabindex="1" (change)="setProduct(orderForm.value.product_id)" >
+            <md-option *ngFor="let product of products" [value]="product.id" >
+              {{'prod_name_'+product.id|translate}}
+            </md-option>
+        </md-select>
+        <div *ngIf="product!=null && product_agent!=null" >
+            <p >
+                <b>{{'product_price'|translate}}:</b>&nbsp;{{price|currency:'ILS':'code'}} 
+              </p>
+            <p >
+              <b>{{'product_price_agent'|translate}}:</b>&nbsp;{{agent_price| currency:'ILS':'code'}} 
+            </p>
+            <p *ngIf="agent_price>agentObligo.credit+agentObligo.obligation" class="_red">
+               {{'credit_is_not_enough'|translate}}
+              </p>
+          </div>
+        <md-form-field>
+            <textarea mdInput formControlName="note" placeholder="{{'note'|translate}}"></textarea>
+            <valid-err [control]="orderForm.controls['note']"></valid-err>
+        </md-form-field>   
+    </form>
+</div>
+<div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!orderForm.valid || member.id==0 || agent_price>agentObligo.credit+agentObligo.obligation">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

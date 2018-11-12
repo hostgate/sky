@@ -1,0 +1,51 @@
+<md-toolbar color="primary">{{'sims' | translate}}</md-toolbar>
+<md-toolbar *ngIf="authService.canUpdate()"><button md-button (click)="openAddDialog()" style="position: relative;
+  float: left;margin-bottom:5px;"><md-icon color="primary">add_circle</md-icon></button>
+    <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
+    <button md-button (click)="fileInput.click()" style="position: relative;
+  float: left;margin-bottom:5px;margin-right:10px;"><md-icon color="primary">file_upload</md-icon></button>
+  <button md-button style="position: relative;
+  float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="example-header">
+        <md-form-field floatPlaceholder="never">
+            <input mdInput placeholder="{{'search'|translate}}" #filter>
+            <md-icon mdSuffix>search</md-icon>
+        </md-form-field>
+    </div>
+    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+        <ng-container mdColumnDef="sim">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'sim'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{row.sim}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="agent_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header  [ngClass]="{'dn':!authService.canUpdate()}">{{'agent'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"  [ngClass]="{'dn':!authService.canUpdate()}">
+                    <ng-container *ngIf="row.agent_name=='-'">-</ng-container>  
+                    <button *ngIf="row.agent_name!='-'" md-button color="primary" [routerLink]="['/סוכן', row.agent_id]">{{row.agent_name}}</button>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="company_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{getTheCompany(row)}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="used">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'used'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row"> {{row.used|yn|translate}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="id">
+            <md-header-cell *mdHeaderCellDef md-sort-header >#</md-header-cell>
+            <md-cell *mdCellDef="let row" >
+                <md-icon (click)="edit(row)" color="primary" style="cursor:pointer;" *ngIf="authService.canUpdate()">mode_edit</md-icon>
+                <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;" *ngIf="authService.canUpdate() && row.used=='0'">delete</md-icon>
+            </md-cell>
+        </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="simsDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+    </md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

@@ -1,0 +1,107 @@
+<md-toolbar color="primary">{{'payments'|translate}}</md-toolbar>
+<md-toolbar>
+    <ng-container *ngIf="authService.canUpdate();">
+        <button md-button (click)="openAddDialog()" style="position: relative;float: left;margin-bottom:5px;margin-right:10px;">
+            <md-icon color="primary">add_circle</md-icon>
+        </button>
+    </ng-container>
+    <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+    <md-chip-list *ngIf="obligation" style="display: table;width: auto;margin: auto;">
+        <md-chip style="margin-bottom:10px;" >
+          <span style="color:green" *ngIf="obligation.credit>0">
+              {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+          </span>
+          <span *ngIf="obligation.credit==0">
+              {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+          </span>
+          <span style="color:red" *ngIf="obligation.credit<0">
+              {{'credit'|translate}}&nbsp;:&nbsp;{{(obligation.credit?obligation.credit:0)|currency:'ILS':'code'}}
+          </span>
+          <md-icon style="color:green;" *ngIf="obligation.credit>0">arrow_drop_up</md-icon>
+          <md-icon style="color:red;" *ngIf="obligation.credit<0">arrow_drop_down</md-icon>
+        </md-chip>
+        <md-chip style="margin-bottom:10px;">{{'obligation'|translate}}&nbsp;:&nbsp;{{(obligation.obligation?obligation.obligation:0)|currency:'ILS':'code'}}</md-chip>
+       <md-chip style="margin-bottom:10px;">{{'can_use'|translate}}&nbsp;:&nbsp;{{(obligation.can_use?obligation.can_use:0)|currency:'ILS':'code'}}</md-chip>
+    </md-chip-list>
+</md-toolbar>
+
+<div class="example-container mat-elevation-z8">
+        <div class="example-header">
+            <md-form-field floatPlaceholder="never">
+                <input mdInput placeholder="{{'search'|translate}}" #filter>
+                <md-icon mdSuffix>search</md-icon>
+            </md-form-field>
+        </div>
+        <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+            <ng-container mdColumnDef="agent_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                        
+                        <ng-container *ngIf="row.agent_name=='-'">
+                                {{row.agent_name}} 
+                        </ng-container>
+
+                        <button [routerLink]="['/סוכן', row.agent_id]" md-button *ngIf="row.agent_name!='-'" color="primary">
+                            {{row.agent_name}} 
+                        </button>
+                         </md-cell>
+            </ng-container> 
+            <ng-container mdColumnDef="add_by_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'add_by'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                        
+                        <ng-container >
+                                {{row.add_by_name}} 
+                        </ng-container>
+
+                        
+                         </md-cell>
+            </ng-container> 
+            <ng-container mdColumnDef="amount">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'amount'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{row.amount|currency:'ILS':'code'}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="account_before">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'account_before'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{row.account_before|currency:'ILS':'code'}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="related_to_date">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'related_to_date'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{(row.related_to_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}} 
+                    <input type="hidden" [(ngModel)]="row.related_to_date" value="{{(row.related_to_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}"/>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="art">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'payment_art'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> {{row.art|translate}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="phone">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> <button *ngIf="row.phone_id" [routerLink]="['/מספר', row.phone_id]" md-button  color="primary">
+                    {{row.phone}} 
+                </button></md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="note">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'note'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                    <span *ngIf="row.rest_order>0" [innerHTML]="row.note"></span>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="id">
+                <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                
+                <md-cell *mdCellDef="let row" > 
+                        <md-icon (click)="openEditDialog(row)" color="primary" style="cursor:pointer;"  *ngIf="authService.canUpdate()">mode_edit</md-icon>
+                    <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;" *ngIf="authService.canUpdate() && row.art!='rest'">delete</md-icon>
+                 </md-cell>
+            </ng-container>
+            <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+            <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+        </md-table>
+        <md-paginator #paginator [length]="db.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+        </md-paginator>
+       
+    </div>
+    
+    <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

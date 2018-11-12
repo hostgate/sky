@@ -1,0 +1,20 @@
+<div md-dialog-content dir="RTL" style="width:auto!important;">
+  <p>{{'add_agreement'|translate}}?</p>
+  <ng-container>
+      <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="saveFile()"/>
+      <button *ngIf="!fileName" md-button (click)="fileInput.click()" style="position: relative;margin-bottom:5px;">{{'upload'|translate}} {{'agreement'|translate}}
+        <md-icon color="primary">file_upload</md-icon></button>
+        <ng-container *ngIf="fileName">
+            <button md-button style="position: relative;margin-bottom:5px;" (click)="restFile()">{{fileName}}</button>
+            <md-icon (click)="restFile()" color="primary" style="cursor:pointer;" >close</md-icon>
+        </ng-container>
+  </ng-container>
+  <md-form-field >
+    <input mdInput [(ngModel)]="title" placeholder="{{'name'|translate}}"/>
+  </md-form-field>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="upload()" tabindex="2" [disabled]="!valid()">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

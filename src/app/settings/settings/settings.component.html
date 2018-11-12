@@ -1,0 +1,24 @@
+<md-toolbar color="primary">{{'settings'|translate}}</md-toolbar>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{'name'|translate}}</th>
+                <th>{{'active'|translate}}</th>
+                <th>{{'value'|translate}}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of settings">
+                <td>{{item.description}} </td>
+                <td *ngIf="item.active=='1'">{{'yes'|translate}} </td>
+                <td *ngIf="item.active=='0'">{{'no'|translate}} </td>
+                <td>{{item._value}} </td>
+                <td ><md-icon mdSuffix (click)="update(item);" style="cursor:pointer;">mode_edit</md-icon></td>
+                
+            </tr>
+
+        </tbody>
+    </table>
+</div>

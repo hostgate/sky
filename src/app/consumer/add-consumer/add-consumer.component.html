@@ -1,0 +1,42 @@
+<h2 class="sub-header">{{'add_consumer'|translate}}:</h2>
+<div class="col-md-12">
+    <form novalidate [formGroup]="consumerForm" (ngSubmit)="save()" autocomplete="off" dir="rtl" >
+        <md-form-field>
+            <input mdInput formControlName="firstname" placeholder="{{'firstname'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['firstname']"></valid-err>
+        </md-form-field>
+        <md-form-field>
+            <input mdInput formControlName="lastname" placeholder="{{'lastname'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['lastname']"></valid-err>
+        </md-form-field>
+
+        <md-select placeholder="{{'related_to_agent'|translate}}" formControlName="parent" tabindex="1" *ngIf="!authService.isAgent()">
+                <md-option *ngFor="let e of agents"  value="{{e.id}}">
+                    {{e._username|translate}}
+                </md-option>
+            </md-select>
+            <valid-err [control]="consumerForm.controls['parent']"></valid-err>
+        <md-form-field>
+            <input mdInput formControlName="national_id" placeholder="{{'personal_id'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['national_id']"></valid-err>
+        </md-form-field>
+        <md-form-field>
+                <input mdInput [mdDatepicker]="picker" placeholder="{{'birthday'|translate}}" formControlName="birthday">
+                <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+                <md-datepicker #picker startView="year" [startAt]="startDate"></md-datepicker>
+              </md-form-field>
+        <md-form-field>
+            <input mdInput formControlName="email" placeholder="{{'email'|translate}}"/>
+        </md-form-field>
+         <md-form-field>
+            <input mdInput formControlName="phone" placeholder="{{'phone'|translate}}"/>
+            <valid-err [control]="consumerForm.controls['phone']"></valid-err>
+        </md-form-field>
+        <button md-raised-button [disabled]="!consumerForm.valid" type="submit" >{{'add'|translate}}</button>
+
+    </form>
+   
+</div>
+<BR/>
+<BR/>
+<BR/>

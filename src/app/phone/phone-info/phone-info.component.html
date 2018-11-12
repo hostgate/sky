@@ -1,0 +1,330 @@
+<div class="container-fluid-in home" *ngIf="phone && member">
+  <div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <button color="primary" [routerLink]="['/הזמנה-חדשה', phone.id]" md-raised-button style="float:left;margin:0 10px 10px 0;" *ngIf="authService.isAgent() && !member.message">{{'new_order'|translate}}</button>
+       
+        <button color="primary" (click)="newOrder()" md-raised-button style="float:left;margin:0 10px 10px 0;" *ngIf="authService.canUpdate() && !member.message">{{'new_order'|translate}}</button>
+        <button (click)="newMember(phone)" md-raised-button style="float:left;margin:0 10px 10px 0;" *ngIf="member.message">{{'add_member'|translate}}</button>
+        <button *ngIf="member && !member.message && !member.has_orders && authService.belongsToUser(member.agent_id)" (click)="deleteMember(member)" color="warn" md-raised-button style="float:left;margin:0 10px 10px 0;">{{'delete_member'|translate}}</button>
+        <button *ngIf="member && member.message" (click)="deletePhone(phone)" color="warn" md-raised-button style="float:left;margin:0 10px 10px 0;">{{'delete_phone'|translate}}</button>
+        
+        <md-toolbar class="head" style="text-align:center;font-weight:bold;">
+          <span *ngIf="completedOrder && completedOrder!=null" [ngClass]="completedOrder.status">
+              <ng-container *ngIf="phone.moved_to_phone && phone.moved_to_phone!='0'">{{phone.moved_to_phone}}</ng-container>
+              <ng-container *ngIf="!phone.moved_to_phone || phone.moved_to_phone=='0'">{{phone.phone}}</ng-container>
+              &nbsp; {{completedOrder.status|translate}} &nbsp;{{'until'|translate}}&nbsp;{{(completedOrder.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+          </span>
+          <span *ngIf="completedOrder==null" class="cancel">
+              <ng-container *ngIf="phone.moved_to_phone && phone.moved_to_phone!='0'">{{phone.moved_to_phone}}</ng-container>
+              <ng-container *ngIf="!phone.moved_to_phone || phone.moved_to_phone=='0'">{{phone.phone}}</ng-container>
+              &nbsp; {{'not_active'|translate}}
+          </span>
+        </md-toolbar>
+        
+    </div>
+    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
+      <md-card>
+        <md-card-header>
+          <md-card-title >
+            <md-toolbar style="width:100%;" class="nHead">{{'phone_info'|translate}}</md-toolbar>
+          </md-card-title>
+        </md-card-header>
+        <md-card-content>
+          <ng-container *ngIf="authService.canUpdate();else e3e">
+              <h5 style="font-weight:bold;">
+                  {{phone.phone}} 
+                  <span *ngIf="phone.moved_to_phone!='0'">
+                    <span *ngIf="phone.accepted_moved_to_phone=='1'" style="color:green;"> &nbsp; >>&nbsp;{{phone.moved_to_phone}}</span>
+                    <ng-container *ngIf="phone.accepted_moved_to_phone=='0'">
+                        <span  style="color:red;"> &nbsp; >>&nbsp;{{phone.moved_to_phone}}</span>
+                        <button *ngIf="authService.canUpdate()" md-raised-button (click)="confirm_trans()" color="primary">{{'confirm_transfer'|translate}}</button>
+                    </ng-container>
+                  </span>
+                  <button color="primary" (click)="openEditPhone()" md-raised-button style="float:left;"  *ngIf="!lnp">החלפת מספר טלפון</button>
+                </h5>
+                <ng-container *ngIf="edit_phone"> 
+                    <div class="example-form">
+                          <ng-container *ngIf="!choose_new_phone">
+                            <input  placeholder="{{'search_phone'|translate}}" [(ngModel)]="sPhone" (keyup)="searchNewPhone($event)">
+                            <br/>
+                            <ul >
+                              <li *ngFor="let sp of searchPhones" style="cursor:pointer;" (click)="chooseNewPhone(sp)">
+                                {{sp.phone}}
+                              </li>
+                            </ul>
+                          </ng-container>
+                          <ng-container *ngIf="choose_new_phone">
+                            <!-- <pre>{{newPhone|json}}</pre> -->
+                            <button color="primary" (click)="acceptNewPhone(phone.id,newPhone.id)" md-raised-button>
+                              אשר כמספר חדש {{newPhone.phone}}
+                            </button>
+                            <md-icon color="warn" (click)="unchooseNewPhone()" style="cursor:pointer;">close</md-icon>
+                          </ng-container>
+                      
+                        
+                    </div>
+                </ng-container>
+                <br/>
+              <ng-container *ngIf="member && member.note_trans_phone">
+                  <label>{{'note'|translate}}</label>
+                  <span [innerHTML]="member.note_trans_phone"></span>
+                </ng-container>
+          </ng-container>
+          <ng-template #e3e>
+              <h5 style="font-weight:bold;">
+                  <span *ngIf="phone.moved_to_phone!='0'">{{phone.moved_to_phone}}</span>
+                  <span *ngIf="phone.moved_to_phone=='0'">{{phone.phone}}</span>
+              </h5>
+          </ng-template>
+          <!-- <pre>{{phone|json}}</pre> -->
+          <p>
+            <label>{{'company'|translate}}</label>
+            {{'company_name_'+phone.company_id|translate}} <br/>
+          
+            <ng-container *ngIf="authService.canUpdate()">
+              <label>{{'used'|translate}}</label>
+              <font *ngIf="phone.used=='1'" style="color:green;">
+                {{phone.used|yn|translate}} 
+              </font>
+              <font *ngIf="phone.used=='0'" style="color:red;">
+                {{phone.used|yn|translate}} 
+              </font>
+              <br/>
+            </ng-container>
+            <ng-container *ngIf="authService.canUpdate()">
+              <ng-container *ngIf="phone.used=='1' && (authService.belongsToUser(phone.agent_id))">
+                <label>{{'agent'|translate}}</label>
+                <button md-button [routerLink]="['/סוכן', phone.agent_id]" routerLinkActive="active" style="color: #337ab7;" color="primary">{{phone.agent_name}}</button>
+                <br/>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="authService.belongsToUser(phone.agent_id) ">
+                <label>{{'created_at'|translate}}</label>
+                {{(phone.created_at_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}} <br/>
+                <ng-container *ngIf="phone.last_update_sec">
+                  <label>{{'last_update'|translate}}</label>
+                  {{(phone.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}} <br/>
+                </ng-container>
+            </ng-container>
+            <ng-container *ngIf="phone.internet!=0">
+              <label>{{'internet'|translate}}</label>
+              {{phone.internet}}&nbsp;{{'giga'|translate}}&nbsp;| {{(phone.internet_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}&nbsp;<br/>
+            </ng-container>
+            <ng-container *ngIf="phone.note!='' && authService.belongsToUser(phone.agent_id)">
+                <label>{{'note'|translate}}</label>
+                <span [innerHTML]="phone.note"></span>
+              </ng-container>
+              
+          </p>
+        </md-card-content>
+      </md-card>
+    </div>
+    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12" [ngClass]="{'dn':!member.sim}" *ngIf="authService.belongsToUser(phone.agent_id)">
+        <md-card>
+          <md-card-header>
+            <md-card-title >
+              <md-toolbar style="width:100%;" class="nHead">{{'member_info'|translate}}</md-toolbar>
+            </md-card-title>
+          </md-card-header>
+          <md-card-content>
+            <h5 style="font-weight:bold;">
+             
+            </h5>
+            <p>
+                <md-progress-bar mode="indeterminate" *ngIf="loading2"></md-progress-bar>
+                <label>{{'sim'|translate}}</label>
+                {{member.sim}}  
+                <ng-container *ngIf="authService.isRent()">
+                  <button color="primary" (click)="openEditSim()" md-raised-button style="float:left;" *ngIf="!lns">החלפת סים</button>
+                  <ng-container *ngIf="edit_sim"> 
+                      <div class="example-form">
+                            <ng-container *ngIf="!choose_new_sim">
+                              <input  placeholder="{{'search_sim'|translate}}" [(ngModel)]="sSim" (keyup)="searchNewSim($event)">
+                              <br/>
+                              <ul >
+                                <li *ngFor="let ss of searchSims" style="cursor:pointer;" (click)="chooseNewSim(ss)">
+                                  {{ss.sim}}
+                                </li>
+                              </ul>
+                            </ng-container>
+                            <ng-container *ngIf="choose_new_sim">
+                              <!-- <pre>{{newPhone|json}}</pre> -->
+                              <button color="primary" (click)="acceptNewSim(member.sim_id,newSim)" md-raised-button>
+                                אשר כסים חדש {{newSim.sim}}
+                              </button>
+                              <md-icon color="warn" (click)="unchooseNewSim()" style="cursor:pointer;">close</md-icon>
+                            </ng-container>
+                        
+                          
+                      </div>
+                  </ng-container>
+                  <br/>
+                </ng-container>
+                <ng-container *ngIf="member.note_trans_sim">
+                    <label>{{'note'|translate}}</label>
+                    <span [innerHTML]="member.note_trans_sim"></span>
+                  </ng-container>
+                <br/>
+                <ng-container>
+                    <label>{{'consumer_name'|translate}}</label>
+                    <button *ngIf="authService.belongsToUser(phone.agent_id)" md-button [routerLink]="['/לקוח', member.consumer_id]" color="primary">{{member.consumer_name}}</button>    
+                    <ng-container *ngIf=" !authService.canUpdate() && phone.agent_id!=authService.getCurrentUserId() ">
+                        {{member.consumer_name}}
+                    </ng-container>
+                    <br/>
+                    
+                    <!-- <label>{{'consumer_national_id'|translate}}</label>
+                    {{member.consumer_national_id}} <br/> -->
+                </ng-container>
+                <ng-container *ngIf="authService.canUpdate()">
+                <label>{{'active'|translate}}</label>
+                <font *ngIf="member.active=='1'" style="color:green;">
+                  {{member.active|yn|translate}} 
+                </font>
+                <font *ngIf="member.active=='0'" style="color:red;">
+                  {{member.active|yn|translate}} 
+                </font><br/>
+              </ng-container>
+                <ng-container *ngIf="authService.belongsToUser(phone.agent_id)"> 
+                    <label>{{'_free'|translate}}</label>
+                    <font *ngIf="member.active=='1'" style="color:green;">
+                      {{member.free|yn|translate}} 
+                    </font>
+                    <font *ngIf="member.active=='0'" style="color:red;">
+                      {{member.free|yn|translate}} 
+                    </font><br/>
+                </ng-container>
+                <ng-container *ngIf="authService.canUpdate()">
+                <label>{{'has_orders'|translate}}</label>
+                <font *ngIf="member.has_orders" style="color:green;">
+                  {{'1'|yn|translate}} 
+                </font>
+                <font *ngIf="!member.has_orders" style="color:red;">
+                  {{'0'|yn|translate}} 
+                </font><br/>
+              </ng-container>
+                <ng-container *ngIf="member.note!=''">
+                  <label>{{'note'|translate}}</label>
+                  <span [innerHTML]="member.note"></span>
+                </ng-container>
+                
+            </p>
+          </md-card-content>
+        </md-card>
+      </div>
+      <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12" *ngIf="lastOrder && lastOrder!=null " [ngClass]="{'dn':!member.has_orders}">
+          <md-card>
+            <md-card-header>
+              <md-card-title [ngClass]="{'red':lastOrder.status=='declined'||lastOrder.status=='cancel'||lastOrder.status=='disconnected','blue':lastOrder.status=='new'||lastOrder.status=='finished','green':lastOrder.status=='completed'}">
+                <md-toolbar style="width:100%;" class="nHead">{{'last_order_info'|translate}}</md-toolbar>
+              </md-card-title>
+            </md-card-header>
+            <md-card-content>
+              <h5 style="font-weight:bold;">
+               
+              </h5>
+             
+              <p>
+                  <ng-container>
+                      <label>{{'product'|translate}}</label>
+                      {{'prod_name_'+lastOrder.product_id|translate}}<br/>
+                  </ng-container>
+                  
+                  <ng-container>
+                      <label>{{'interval'|translate}}</label>
+                      <span *ngIf="lastOrder.days_or_months=='months'">{{lastOrder.days_or_months_numbers}}&nbsp;{{'months'|translate}}</span> 
+                      <span *ngIf="lastOrder.days_or_months=='days'">{{lastOrder.days_or_months_numbers}}&nbsp;{{'days'|translate}}</span> 
+                      <br/>
+                    </ng-container>
+                  <ng-container >
+                      <label>{{'status'|translate}}</label>
+                      <span style="color:#3f51b5;" *ngIf="lastOrder.status=='new'">{{lastOrder.status|translate}}</span>
+                      <span style="color:green;" *ngIf="lastOrder.status=='completed'">{{lastOrder.status|translate}}&nbsp;{{'until'|translate}}:&nbsp;
+                              {{(lastOrder.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                      </span>
+                      <span style="color:#f44336;" *ngIf="lastOrder.status=='declined'">{{lastOrder.status|translate}}</span>
+                      <span style="color:#f44336;" *ngIf="lastOrder.status=='cancel'">{{lastOrder.status|translate}}</span>
+                      <span style="color:#f44336;" *ngIf="lastOrder.status=='disconnected'">{{lastOrder.status|translate}}</span>
+                      <br/>
+                  </ng-container>
+                  
+                  <ng-container>
+                    <label>{{'created_at'|translate}}</label>
+                    {{(lastOrder.created_at_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}} <br/>
+                  </ng-container>
+                  <ng-container>
+                    <label>{{'last_update'|translate}}</label>
+                    {{(lastOrder.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}} <br/>
+                  </ng-container>
+                  <ng-container>
+                      <div class="button-row" style="margin-top:20px;" *ngIf="lastOrder.status!='disconnected'">
+                          <button (click)="delete(lastOrder)" md-raised-button color="warn" *ngIf=" lastOrder.status=='new' && (authService.canUpdate() || (authService.belongsToUser(lastOrder.agent_id)))">{{'delete'|translate}}</button>
+                        </div>
+                  </ng-container>
+              </p>
+            
+            </md-card-content>
+          </md-card>
+        </div>
+        <div  class="col-lg-12 col-md-12 col-sm-12 col-xs-12" [ngClass]="{'dn':!member.has_orders||db.data.length==0}" >
+            <md-toolbar class="head" color="primary" style="text-align:center;font-weight:bold;">{{'orders'|translate}}&nbsp;(
+                <ng-container *ngIf="phone.moved_to_phone && phone.moved_to_phone!='0'">{{phone.moved_to_phone}}</ng-container>
+                <ng-container *ngIf="!phone.moved_to_phone || phone.moved_to_phone=='0'">{{phone.phone}}</ng-container>
+              )</md-toolbar>
+            <md-toolbar>
+                <button md-button (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+            </md-toolbar>
+            <div class="example-container mat-elevation-z8">
+                <div class="example-header">
+                    <md-form-field floatPlaceholder="never">
+                        <input mdInput placeholder="{{'search'|translate}}" #filter>
+                        <md-icon mdSuffix>search</md-icon>
+                    </md-form-field>
+                </div>
+                <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+                    <ng-container mdColumnDef="agent_name">
+                        <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':authService.isAgent()}">{{'agent'|translate}} </md-header-cell>
+                        <md-cell *mdCellDef="let row" [ngClass]="{'dn':authService.isAgent()}">
+                            <button md-button [routerLink]="['/סוכן', row.agent_id]" routerLinkActive="active" color="primary" *ngIf="row.agent_name!='-'">{{row.agent_name}} </button>
+                        </md-cell>
+                    </ng-container>
+                    <ng-container mdColumnDef="last_update_sec">
+                        <md-header-cell *mdHeaderCellDef md-sort-header>{{'last_update'|translate}} </md-header-cell>
+                        <md-cell *mdCellDef="let row">{{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}</md-cell>
+                    </ng-container>
+                    <ng-container mdColumnDef="product_name">
+                        <md-header-cell *mdHeaderCellDef md-sort-header>{{'product'|translate}} </md-header-cell>
+                        <md-cell *mdCellDef="let row">
+                                <span innerHTML="{{'prod_name_'+row.product_id|translate}}"></span>
+                        </md-cell>
+                    </ng-container>
+                    <ng-container mdColumnDef="status">
+                        <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                        <md-cell *mdCellDef="let row" [ngClass]="row.status">{{row.status|translate}}
+                            <span *ngIf="row.status=='completed'">&nbsp;{{'until'|translate}}<br/>{{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}</span></md-cell>
+                    </ng-container>
+                     <ng-container mdColumnDef="id">
+                        <md-header-cell *mdHeaderCellDef md-sort-header>#</md-header-cell>
+                        <md-cell *mdCellDef="let row" > 
+                          <md-icon *ngIf=" row.can_deleted=='1'"  mdTooltip="{{'delete'|translate}}" (click)="delete(row)" color="warn" style="cursor:pointer;">delete</md-icon> 
+                                <md-icon *ngIf="authService.belongsToUser(row.agent_id)" mdTooltip="{{'order'|translate}}" color="primary" style="cursor:pointer;" [routerLink]="['/הזמנה', row.id]" routerLinkActive="active">info</md-icon>
+                                <ng-container *ngIf="row.status=='completed'">
+                                  <button md-mini-fab [color]="'primary'" style="margin-left:15px;" (click)="refreshConnect(row);">{{'refresh_member'|translate}}</button> 
+                              </ng-container>
+                              <ng-container *ngIf="row.status=='completed'  && authService.isRent()">  
+                                <button md-mini-fab [color]="'warn'" style="margin-left:15px;" (click)="disconnectMember(row);">{{'disconnect2'|translate}}</button> 
+                            </ng-container>
+                              </md-cell>
+                              
+                    </ng-container> 
+                    <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+                    <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+                </md-table>
+                <md-paginator #paginator [length]="db.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+                </md-paginator>
+            </div>
+        </div>
+  </div>
+</div>
+
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

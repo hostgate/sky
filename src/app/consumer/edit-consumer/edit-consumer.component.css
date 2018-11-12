@@ -1,0 +1,55 @@
+/* input.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+    border: 1px solid green;
+    border-right: 5px solid green!important;
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+    border: 1px solid red;
+    border-right: 5px solid red!important;
+}
+
+.ui-calendar .ui-inputtext {
+    margin: 0;
+    outline: medium none;
+    padding: 4px;
+    font-weight: normal;
+    width: 100%!important;
+    border: 0!important;
+}
+
+.calClass {
+    padding: 0!important;
+} */
+input.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+   /* border: 1px solid green;
+    border-right: 5px solid green!important;*/
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+    /*border: 1px solid red;
+    border-right: 5px solid red!important;*/
+}
+
+.ui-calendar .ui-inputtext {
+    margin: 0;
+    outline: medium none;
+    padding: 4px;
+    font-weight: normal;
+    width: 100%!important;
+    border: 0!important;
+}
+
+.calClass {
+    padding: 0!important;
+}
+.mat-form-field ,.mat-select{
+    width: 100%;
+    margin: 20px 0 0 0;
+}
+.mat-select{
+    margin: 0;
+}

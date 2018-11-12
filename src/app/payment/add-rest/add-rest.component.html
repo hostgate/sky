@@ -1,0 +1,29 @@
+<div md-dialog-content dir="RTL">
+  <p>{{'add'|translate}} {{'rest'|translate}}?</p>
+  <p>
+    <label for="">{{'phone'|translate}}: </label>&nbsp;{{phone}}
+  </p>
+    <form novalidate [formGroup]="paymentForm" class="form-inline">
+      <md-form-field>
+        <input mdInput formControlName="amount" placeholder="{{'amount'|translate}}"/>
+        <valid-err [control]="paymentForm.controls['amount']"></valid-err>
+      </md-form-field>
+      <md-form-field>
+        <input mdInput [mdDatepicker]="picker" placeholder="{{'choose_a_date'|translate}}" formControlName="related_to_date">
+        <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+        <md-datepicker #picker></md-datepicker>
+      </md-form-field>
+      <md-form-field>
+        <textarea mdInput formControlName="note" placeholder="{{'note'|translate}}"></textarea>
+      </md-form-field>
+      <input type="hidden" formControlName="rest_order"/>
+      <input type="hidden" formControlName="phone"/>
+      <input type="hidden" formControlName="art"/>
+      <input type="hidden" formControlName="agent_id"/>
+    </form>
+    </div>
+    <div md-dialog-actions dir="RTL">
+      <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!paymentForm.valid ">{{'save'|translate}}</button>
+      <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+    </div>
+    <md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

@@ -1,0 +1,75 @@
+<md-toolbar color="primary">{{'price_list'|translate}}</md-toolbar>
+<md-toolbar>
+   
+    <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="example-header">
+        <md-form-field floatPlaceholder="never">
+            <input mdInput placeholder="{{'search'|translate}}" #filter>
+            <md-icon mdSuffix>search</md-icon>
+        </md-form-field>
+    </div>
+    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+        <ng-container mdColumnDef="product_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'product_name'|translate}}</md-header-cell>
+            <md-cell *mdCellDef="let row">
+                <span> {{'prod_name_'+row.product_id|translate}}</span>
+                <p style="color:blue;">(
+                    <span *ngIf="row.product_days_or_months=='months'">{{row.product_days_or_months_numbers}}&nbsp;{{'months'|translate}}</span> 
+                    <span *ngIf="row.product_days_or_months=='days'">{{row.product_days_or_months_numbers}}&nbsp;{{'days'|translate}}</span>
+                    )
+                </p>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="company_name">
+          <md-header-cell *mdHeaderCellDef md-sort-header>{{'provider'|translate}}</md-header-cell>
+          <md-cell *mdCellDef="let row">{{'company_name_'+row.company_id|translate}}</md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="discount">
+          <md-header-cell *mdHeaderCellDef md-sort-header>{{'your_price'|translate}}</md-header-cell>
+          <md-cell *mdCellDef="let row">
+            {{(row.product_price-(0.01*row.discount*row.product_price))| number : '1.2-2' }}&nbsp;ש"ח </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="product_price">
+          <md-header-cell *mdHeaderCellDef md-sort-header>
+            <ng-container *ngIf="allow_to_change_price">{{'recommended_retail_price'|translate}}</ng-container>
+            <ng-container *ngIf="!allow_to_change_price">
+               {{'consumer_price'|translate}}
+            </ng-container>
+          </md-header-cell>
+          <md-cell *mdCellDef="let row">
+                <font color="green">{{row.product_price| number : '1.2-2' }}&nbsp;ש"ח</font>
+                </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="profit">
+              <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':!allow_to_change_price}">{{'extension'|translate}}</md-header-cell>
+              <md-cell *mdCellDef="let row" [ngClass]="{'dn':!allow_to_change_price}">
+                  <button (click)="openProfit(row)" md-raised-button color="primary">{{row.profit| number : '1.2-2' }}&nbsp;ש"ח <md-icon>edit</md-icon></button>
+                </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="all">
+            <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':!allow_to_change_price}">{{'consumer_price'|translate}}</md-header-cell>
+            <md-cell *mdCellDef="let row" [ngClass]="{'dn':!allow_to_change_price}">
+                <font color="green">{{row.all| number : '1.2-2' }}&nbsp;ש"ח</font>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="id">
+          <md-header-cell *mdHeaderCellDef md-sort-header>{{'view'|translate}}</md-header-cell>
+          <md-cell *mdCellDef="let row">
+              <md-slide-toggle (change)="view(row)"
+              color="primary"
+              [checked]="row.active=='1'">
+              
+          </md-slide-toggle>
+          </md-cell>
+        </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="priceListDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+    </md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

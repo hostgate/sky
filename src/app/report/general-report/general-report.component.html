@@ -1,0 +1,175 @@
+<md-toolbar color="primary">{{'general_report'|translate}}</md-toolbar>
+<div class="row" style="padding:16px;width:90%;">
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <md-checkbox [(ngModel)]="all_rows" color="primary" (change)="all_rows_true();loadOrders()">{{'all_rows'|translate}}</md-checkbox>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <md-checkbox [(ngModel)]="!all_rows" color="primary" (change)="all_rows_false();loadOrders()">{{'part'|translate}}</md-checkbox>
+        <div *ngIf="!all_rows" class="form-inline">
+            <div class="form-group">
+                <label>{{'number_of_rows'|translate}}</label>
+                <input  class="form-control" [(ngModel)]="limit"  (keyup)="page=1;setPages();loadOrders();"/>
+            </div> 
+            <div class="form-group">
+                <label>{{'page'|translate}}</label>
+                <select  class="form-control" *ngIf="pages"  [(ngModel)]="page" (change)="loadOrders()" >
+                    <option *ngFor="let page of pages" value="{{page}}" >
+                    {{page}}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <md-checkbox [(ngModel)]="filter_by_date" color="primary" (change)="resetDates()">{{'filter_by_date'|translate}}</md-checkbox>
+        <div *ngIf="orders && filter_by_date">
+            <section  class="filter_by_date">
+                <md-form-field>
+                    <input mdInput [mdDatepicker]="picker" placeholder="{{'_begin'|translate}}" [(ngModel)]="_begin" (dateChange)="setDates()">
+                    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+                    <md-datepicker #picker></md-datepicker>
+                </md-form-field>
+                <md-form-field>
+                    <input mdInput [mdDatepicker]="picker1" placeholder="{{'_end'|translate}}" [(ngModel)]="_end" (dateChange)="setDates()">
+                    <md-datepicker-toggle mdSuffix [for]="picker1"></md-datepicker-toggle>
+                    <md-datepicker #picker1></md-datepicker>
+                </md-form-field>
+            </section>
+        </div>
+    </div>
+</div>
+<md-toolbar *ngIf="orders">
+    <button md-button style="position: relative;float: left;margin-bottom:5px;margin-right:10px;" 
+                    (click)="loadExcel()">
+                    {{'excel'|translate}}&nbsp;
+                    <md-icon color="primary">file_download</md-icon>
+    </button>
+    <img *ngIf="loading"
+           src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA=="
+    />
+</md-toolbar>
+<div class="example-container mat-elevation-z8">
+    <div class="example-header" >
+        <md-form-field floatPlaceholder="never">
+            <input mdInput placeholder="{{'search'|translate}}" #filter>
+            <md-icon mdSuffix>search</md-icon>
+        </md-form-field>
+    </div>
+    <input #filter1 mdInput style="display:none!important;" />
+    <div class="row">
+        <div class="button-row col-lg-12 col-md-12 col-sm-12 col-xs-12" *ngIf="orders">
+            <button md-raised-button [color]="filter1.value==''?'':'primary'" (click)="changeStatus('');filter1.click();">{{'_all'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='cancel'?'':'primary'" (click)="changeStatus('cancel');filter1.click();">{{'cancel'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='new'?'':'primary'"  (click)="changeStatus('new');filter1.click();">{{'new'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='declined'?'':'primary'"  (click)="changeStatus('declined');filter1.click();">{{'declined'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='completed'?'':'primary'"  (click)="changeStatus('completed');filter1.click();">{{'completed'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='disconnected'?'':'primary'"  (click)="changeStatus('disconnected');filter1.click();">{{'disconnected'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='finished'?'':'primary'"  (click)="changeStatus('finished');filter1.click();">{{'finished'|translate}}</button>
+            <button md-raised-button [color]="filter1.value=='trans'?'':'primary'"  (click)="_trans('trans');filter1.click();">ניודים</button>
+        </div>
+    </div>
+    <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+        <ng-container mdColumnDef="agent_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">
+                <ng-container *ngIf="row.agent_name=='-'">
+                    {{row.agent_name}} 
+                </ng-container>
+                <button md-button color="primary" *ngIf="row.agent_name!='-'" [routerLink]="['/סוכן', row.agent_id]">
+                    {{row.agent_name}}
+                </button> 
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="last_update_sec">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'last_update'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">{{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}</md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="phone">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">
+                <ng-container *ngIf="authService.isAgent() && row.moved_to_phone!='0';else e4e">
+                    <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]">
+                        <ng-container *ngIf="!__trans">{{row.moved_to_phone}}</ng-container>
+                        <ng-container *ngIf="__trans">
+                            {{row.phone}}&nbsp; <strong style="color:green;">>>&nbsp;<span>{{row.moved_to_phone}}</span></strong>
+                        </ng-container>
+                        
+                    </button>
+                </ng-container>
+                <ng-template #e4e>
+                    <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                        {{row.phone}}
+                    </button>
+                    <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                        <ng-container *ngIf="__trans"> {{row.phone}}&nbsp; <strong style="color:green;">>>&nbsp;<span>{{row.moved_to_phone}}</span></strong></ng-container>
+                        <ng-container *ngIf="row.moved_to_phone && !__trans">{{row.moved_to_phone}}</ng-container>
+                        <ng-container *ngIf="!row.moved_to_phone && !__trans">{{row.phone}}</ng-container>
+                    </button> 
+                    <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                        <ng-container *ngIf="__trans"> {{row.phone}}&nbsp; <strong>>>&nbsp;<span style="color:red;">{{row.moved_to_phone}}</span></strong> </ng-container>
+                        <ng-container *ngIf="row.moved_to_phone && !__trans">{{row.moved_to_phone}}</ng-container>
+                        <ng-container *ngIf="!row.moved_to_phone && !__trans">{{row.phone}}</ng-container>
+                    </button> 
+                </ng-template>
+                
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="id">
+            <md-header-cell *mdHeaderCellDef md-sort-header># </md-header-cell>
+            <md-cell *mdCellDef="let row">
+                    <ng-container *ngIf="row.status=='completed'">
+                        <button md-mini-fab [color]="'primary'" style="margin-left:15px;" (click)="refreshConnect(row);">{{'refresh_member'|translate}}</button> 
+                    </ng-container>
+                    <ng-container *ngIf="row.status=='completed' && authService.isRent()">
+                        <button md-mini-fab [color]="'warn'" style="margin-left:15px;" (click)="disconnectMember(row);">{{'disconnect2'|translate}}</button> 
+                    </ng-container>
+                    <ng-container *ngIf="authService.canUpdate()">
+                            <button md-mini-fab  style="margin-left:15px;" (click)="addRest(row);">{{'rest'|translate}}</button> 
+                    </ng-container>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="product_name">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'product'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row">{{'company_name_'+row.company_id|translate}}&nbsp;/&nbsp;
+                <span innerHTML="{{'prod_name_'+row.product_id|translate}}"></span>
+            </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="price">
+            <md-header-cell *mdHeaderCellDef md-sort-header>
+                {{'recommended_price'|translate}}<br/>{{'all'|translate}}:{{sum_price|number : '1.2-2'}}
+            </md-header-cell>
+            <md-cell *mdCellDef="let row">{{row.price|currency:'ILS':'code'}} </md-cell> 
+        </ng-container>
+        <ng-container mdColumnDef="price_agent">
+            <md-header-cell *mdHeaderCellDef md-sort-header>
+                {{'cost'|translate}} <br/>{{'all'|translate}}:{{sum_price_agent|number : '1.2-2'}}
+            </md-header-cell>
+            <md-cell *mdCellDef="let row">{{row.price_agent|currency:'ILS':'code'}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="rest">
+            <md-header-cell *mdHeaderCellDef md-sort-header>
+                {{'rest'|translate}} <br/>{{'all'|translate}}:{{sum_rest|number : '1.2-2'}}
+            </md-header-cell>
+            <md-cell *mdCellDef="let row">{{row.rest|currency:'ILS':'code'}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="profit">
+            <md-header-cell *mdHeaderCellDef md-sort-header>
+                {{'sold_to_the_customer'|translate}}<br/>{{'all'|translate}}:{{sum_profit|number : '1.2-2'}}
+            </md-header-cell>
+            <md-cell *mdCellDef="let row">{{(row.profit*1)+(row.price*1)|currency:'ILS':'code'}} </md-cell>
+        </ng-container>
+        <ng-container mdColumnDef="status">
+            <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+            <md-cell *mdCellDef="let row" [ngClass]="row.status">
+                {{row.status|translate}}
+                <span *ngIf="row.status=='completed'">
+                    &nbsp;{{'until'|translate}}<br/>{{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                </span>
+            </md-cell>
+        </ng-container>
+        <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+        <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+    </md-table>
+    <md-paginator #paginator [length]="db.data.length" [pageIndex]="0" [pageSize]="100"></md-paginator>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

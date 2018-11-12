@@ -1,0 +1,13 @@
+<h1 md-dialog-title dir="RTL" color="warn">{{'delete_payment'|translate}}</h1>
+<div md-dialog-content  dir="RTL">
+  <p>{{'do_you_want_to_delete_payment'|translate}}</p>
+  <p><label>{{'amount'|translate}}: </label> {{data.payment.amount}}</p>
+  <p><label>{{'agent'|translate}}: </label> {{data.payment.agent_name}}</p>
+  
+</div>
+<div md-dialog-actions  dir="RTL">
+  <button md-button [md-dialog-close]="data" tabindex="2" color="warn" (click)="delete(data.id,todelete.value)">{{'yes'|translate}}</button>
+  <button md-button (click)="onNoClick()" tabindex="-1">{{'no'|translate}}</button>
+</div>
+<input type="hidden" value="{{'payment'|translate}} {{data.id}}" #mes/>
+<input type="hidden" value="{{'deleted'|translate}}" #todelete/>

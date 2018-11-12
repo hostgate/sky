@@ -1,0 +1,24 @@
+
+<div md-dialog-content dir="RTL">
+  <p>{{'add_company'|translate}}?</p>
+<form novalidate [formGroup]="data.company.companyForm"  class="form-inline">
+  <div class="form-group">
+      <md-form-field>
+      <input mdInput tabindex="1" formControlName="name" placeholder="{{'company_name'|translate}}" />
+      <valid-err [control]="data.company.companyForm.controls['name']"></valid-err>
+    </md-form-field>
+    <md-form-field>
+      <input mdInput tabindex="1" formControlName="name_ar" placeholder="{{'company_name_ar'|translate}}" />
+    </md-form-field>
+    <md-form-field>
+      <input mdInput tabindex="1" formControlName="name_en" placeholder="{{'company_name_en'|translate}}" />
+    </md-form-field>
+  </div>
+  
+
+</form>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!data.company.companyForm.valid">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>

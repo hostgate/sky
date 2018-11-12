@@ -1,0 +1,19 @@
+<h1 md-dialog-title dir="RTL" color="warn">{{'delete_block'|translate}}</h1>
+<div md-dialog-content  dir="RTL">
+  <p>{{'do_you_want_to_delete_block'|translate}}</p>
+  <p>
+      <label>{{'block'|translate}}</label><br/>
+      <ng-container *ngIf="data.block_package.all_packages=='1'">
+          {{data.block_package.company}} / {{'all_packages'|translate}}
+      </ng-container>
+      <ng-container *ngIf="data.block_package.all_packages=='0'">
+          {{data.block_package.company}} / {{data.block_package.package}}
+      </ng-container>  
+  </p>
+  
+</div>
+<div md-dialog-actions  dir="RTL">
+  <button md-button [md-dialog-close]="data" tabindex="2" color="warn" (click)="delete(data.id,todelete.value)">{{'yes'|translate}}</button>
+  <button md-button (click)="onNoClick()" tabindex="-1">{{'no'|translate}}</button>
+</div>
+<input type="hidden" value="{{'deleted'|translate}}" #todelete/>

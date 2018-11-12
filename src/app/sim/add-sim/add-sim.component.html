@@ -1,0 +1,42 @@
+<div md-dialog-content dir="RTL">
+    <p>{{'add_sim'|translate}}?</p>
+    <div class="sim-list">
+        <ol *ngIf="data.sim.excelSims" class="mat-chip-list-stacked">
+            <li *ngFor="let item of data.sim.excelSims">
+                <md-checkbox [checked]="true" [disabled]="true">{{item[0]}}</md-checkbox>
+            </li>
+        </ol>
+    </div>
+    <form novalidate [formGroup]="data.sim.simForm" class="form-inline">
+            <md-form-field [ngClass]="{'dn':data.sim.excelSims}">
+                <input mdInput tabindex="1" formControlName="sim" placeholder="{{'sim'|translate}}" />
+                <valid-err [control]="data.sim.simForm.controls['sim']"></valid-err>
+            </md-form-field>
+            <md-form-field>
+                <input mdInput tabindex="1" formControlName="note" placeholder="{{'note'|translate}}" />
+                <valid-err [control]="data.sim.simForm.controls['note']"></valid-err>
+            </md-form-field>
+            <md-form-field>
+                <input type="text" placeholder="{{'agent'|translate}}" aria-label="Number" mdInput formControlName="agent_id" 
+                [mdAutocomplete]="auto" tabindex="1"
+                  (keyup)="searchAgent($event)" (focusout)="chooseAgent($event)">
+                  <valid-err [control]="data.sim.simForm.controls['agent_id']"></valid-err>
+                <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn" (click)="test($event)" >
+                  <md-option [value]="{username:'free'|translate,id:0}">{{'free'|translate}}</md-option>
+                  <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;" >
+                    {{ option._username }}
+                  </md-option>
+                </md-autocomplete>
+              </md-form-field>
+            <md-select placeholder="{{'company'|translate}}" formControlName="company_id" tabindex="1">
+                <md-option *ngFor="let company of data.sim.companies" [value]="company.id">
+                    {{ company.name }}
+                </md-option>
+            </md-select>
+    </form>
+</div>
+<div md-dialog-actions dir="RTL">
+    <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!data.sim.simForm.valid">{{'save'|translate}}</button>
+    <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="load" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

@@ -1,0 +1,94 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css';
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+.ui-dialog .ui-dialog-title {
+    float: right!important;
+    margin: .3em 16px .1em 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+    float: left!important;
+}
+
+.ui-dialog.ui-widget .ui-dialog-content .fa {
+    float: left!important;
+}
+.ui-growl {
+    z-index: 9999999999999999999999999999999999999999!important;
+}
+.scalClass{
+    width:100%;
+    display: block!important;
+     border: none!important;
+}
+.sscalClass{
+    border: none!important;
+    width:100%;
+        padding: 6px!important;
+}
+.sscalClass:focus{
+    outline: none!important;
+     border: none!important;
+}
+.fa-backward:before {
+    content: "\f04e";
+}
+.fa-step-backward:before {
+    content: "\f051";
+}
+.fa-forward:before {
+    content: "\f04a";
+}
+.fa-step-forward:before {
+    content: "\f048";
+}
+ @import "https://fonts.googleapis.com/css?family=Cairo";
+body{
+    font-family: 'Cairo', sans-serif!important;
+}
+body *:not(md-icon):not(.fa){
+    font-family: 'Cairo', sans-serif!important;
+} 
+.dn{
+    display: none!important;
+}
+.cdk-overlay-container{
+    z-index: 1031!important;
+}
+.accent{
+    color:#ff4081;
+}
+.primary{
+    color:#3f51b5;
+}
+.warn{
+    color:#f44336;
+}
+.notif{
+    color: #fff!important;
+    margin: 0 1px 0 0!important;
+    font-weight: bold!important;
+    cursor: pointer!important;
+}
+.notif1{
+    background-color:#8BC34A!important;
+}
+.notif3{
+    background-color: rgb(94, 14, 115)!important;
+}
+.notif2{
+    background-color: #00aced!important;
+}
+.notif4{
+    background-color:rgb(232, 48, 135)!important;
+}
+.notif5{
+    background-color: rgb(60, 118, 61)!important;
+}
+.bf{
+    height: 55px;
+    padding: 15px;
+    text-align: center;
+    background: #f5f5f5;
+}

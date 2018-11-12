@@ -1,0 +1,178 @@
+<md-toolbar color="primary">{{'order_info'|translate}} {{'number'|translate}} {{id}}</md-toolbar>
+<div class="container-fluid-in"  *ngIf="loading==false">
+    <div class="row">
+        <div class="col-lg-6">
+            <md-card class="example-card">
+                <md-card-header><md-card-title><h3>{{'order'|translate}}:</h3></md-card-title></md-card-header>
+                <md-card-content>
+                    <md-list>
+                        <md-list-item> 
+                            <strong>{{'company'|translate}}:</strong>&nbsp;
+                            {{'company_name_'+order.company_id|translate}}
+                        </md-list-item>
+                        <md-list-item>
+                            <strong>{{'product'|translate}}:</strong>&nbsp;
+                            <span innerHTML="{{'prod_name_'+order.product_id|translate}}"></span>
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'sim'|translate}}:</strong>&nbsp; {{order.sim}}
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'phone'|translate}}:</strong>&nbsp; 
+                              <span *ngIf="phone.moved_to_phone=='0' && phone.accepted_moved_to_phone=='0'">{{phone.phone}}</span>
+                                <span *ngIf="phone.moved_to_phone!='0' && phone.accepted_moved_to_phone=='1'">
+                                    {{phone.phone}}&nbsp; <strong>>>&nbsp;<span>{{phone.moved_to_phone}}</span></strong>
+                                </span> 
+                                <span  *ngIf="phone.moved_to_phone!='0' && phone.accepted_moved_to_phone=='0'">
+                                    {{phone.phone}}&nbsp; <strong>>>&nbsp;<span style="color:red;">{{phone.moved_to_phone}}</span></strong>
+                                </span>
+                        </md-list-item>
+                        <ng-container *ngIf="order.price!=0; else newOrder">
+                            <md-list-item *ngIf="authService.canUpdate()"> 
+                                <strong>{{'price'|translate}}:</strong>&nbsp; {{product.price}} ש"ח.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'discount_in_precent'|translate}}:</strong>&nbsp; {{order.discount}} %.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'agent_price'|translate}}:</strong>&nbsp; {{order.price_agent}} ש"ח.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'additional_profit'|translate}}:</strong>&nbsp; {{order.profit}} ש"ח.
+                            </md-list-item>
+                            <md-list-item> 
+                                <strong>{{'sold_to_the_customer'|translate}}:</strong>&nbsp; {{(order.price*1)+(order.profit*1)}} ש"ח.
+                            </md-list-item>
+                        </ng-container>
+                        <ng-template #newOrder>
+                            <md-list-item *ngIf="authService.canUpdate()"> 
+                                <strong>{{'price'|translate}}:</strong>&nbsp; {{product.price}} ש"ח.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'discount_in_precent'|translate}}:</strong>&nbsp; {{order._discount}} %.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'agent_price'|translate}}:</strong>&nbsp; {{order._price_agent}} ש"ח.
+                            </md-list-item>
+                            <md-list-item  *ngIf="authService.canUpdate()"> 
+                                <strong>{{'additional_profit'|translate}}:</strong>&nbsp; {{order._profit}} ש"ח.
+                            </md-list-item>
+                            <md-list-item> 
+                                <strong>{{'sold_to_the_customer'|translate}}:</strong>&nbsp; {{(order._price*1)+(order._profit*1)}} ש"ח.
+                            </md-list-item>
+                        </ng-template>
+                        
+                        <md-list-item> 
+                            <strong>{{'add_by'|translate}}:</strong>&nbsp; {{add_by.firstname+' '+add_by.lastname}}
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'created_at'|translate}}:</strong>&nbsp; {{(order.created_at_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                         </md-list-item>
+                         <md-list-item *ngIf="order.status!='new'"> 
+                            <strong>{{'expiration'|translate}}:</strong>
+                            &nbsp; {{(order.valid_from_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}} -
+                            &nbsp; {{(order.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                         </md-list-item>
+                        <md-list-item *ngIf="order.status=='completed'"> 
+                            <strong>{{'completed_by'|translate}}:</strong>&nbsp; {{completed_by.firstname+' '+completed_by.lastname}}
+                         </md-list-item>
+                        <md-list-item >  
+                            <strong>{{'status'|translate}}:</strong>&nbsp; 
+                            <span class="alert alert-info" *ngIf="order.status=='new'">{{order.status|translate}}</span>
+                            <span class="alert alert-success" *ngIf="order.status=='completed'">{{order.status|translate}}&nbsp;{{'until'|translate}}:&nbsp;
+                                    {{(order.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                            </span>
+                            <span class="alert alert-danger" *ngIf="order.status=='declined'">{{order.status|translate}}</span>
+                            <span class="alert alert-warning" *ngIf="order.status=='cancel'">{{order.status|translate}}</span>
+                        </md-list-item>
+                       
+                        <md-list-item *ngIf="order.status=='cancel'" class="cancel"> 
+                            <strong>{{'cancel_rest'|translate}}:</strong>&nbsp;{{order.cancel_rest}} ש"ח.
+                        </md-list-item>
+                        <md-list-item *ngIf="order.status=='disconnected'" class="cancel"> 
+                            <strong>{{'disconnected'|translate}}</strong>
+                            &nbsp;&nbsp;
+                            {{'disconnected_date'|translate}}:&nbsp;{{(order.disconnect_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                        </md-list-item>
+                        
+                        <md-list-item *ngIf="order.status!='disconnected'"> 
+                            <strong>{{'last_update'|translate}}:</strong>&nbsp;
+                            {{(order.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}
+                        </md-list-item>
+                           
+                    </md-list>
+                    <div style="padding:15px;">
+                        <strong>{{'note'|translate}}:</strong>&nbsp;
+                        <p [innerHTML]="order.note"></p>
+                    </div>
+                    <div class="button-row" style="margin-top:20px;" *ngIf="order.status!='disconnected'">
+                            <button (click)="complete()" md-raised-button color="primary" *ngIf="authService.canUpdate() && order.status!='cancel' && order.status!='completed'">{{'ok'|translate}}</button>
+                            <button (click)="decline()" md-raised-button  *ngIf="authService.canUpdate() && order.status=='new'">{{'decline'|translate}}</button>
+                            <button (click)="cancel()" md-raised-button color="warn" *ngIf="order.status=='completed' && timeToActiveCancel>currentTime">
+                                {{'cancellation'|translate}} |
+                                נשארו עוד 
+                                <span *ngIf="restTimeToCancelH>0">{{restTimeToCancelH}} שעות,</span> 
+                                <span  *ngIf="restTimeToCancelM>0">{{restTimeToCancelM}} דקות ו </span>
+                                {{restTimeToCancelS}} שניות לביטול ההזמנה
+                            </button>
+                            <button (click)="delete()" md-raised-button color="warn" *ngIf="order.status=='new'">{{'delete'|translate}}</button>
+                            <button (click)="change_seen(order)" md-raised-button color="warn" *ngIf="authService.canUpdate() && order.status=='cancel' && order.cancel_seen=='0'">{{'remove_from_alerts'|translate}}</button>
+                            <button (click)="change_seen(order)" md-raised-button color="primary" *ngIf="authService.canUpdate() && order.status=='cancel' && order.cancel_seen=='1'">{{'add_to_alerts'|translate}}</button>
+                          
+                        </div>
+                </md-card-content> 
+            </md-card>
+        </div>
+        <div class="col-lg-6">
+            <md-card class="example-card" *ngIf="authService.canUpdate()">
+                <md-card-header><md-card-title><h3>{{'agent'|translate}}:</h3></md-card-title></md-card-header>
+                <md-card-content>
+                    <md-list>
+                        <md-list-item> 
+                            <strong>{{'username'|translate}}:</strong>&nbsp;
+                            <a [routerLink]="['/סוכן', agent.id]">{{agent.username}}</a>
+                        </md-list-item>
+                        <md-list-item>
+                            <strong>{{'name'|translate}}:</strong>&nbsp; {{agent.firstname}}&nbsp; {{agent.lastname}} 
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'email'|translate}}:</strong>&nbsp; {{agent.email}}
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'phone'|translate}}:</strong>&nbsp; {{agent.phone}} <span *ngIf="agent.phone!=''">&nbsp;/&nbsp;</span> {{agent.mobile}}
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'credit'|translate}}:</strong>&nbsp;<strong *ngIf="obligation.credit>=0" style="color:green;"> {{obligation.credit }} ש"ח.</strong>
+                            <strong *ngIf="obligation.credit<0" style="color:red;white-space: nowrap;"> {{obligation.credit }} ש"ח.</strong>
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'obligation'|translate}}:&nbsp; {{obligation.obligation>0?-1*obligation.obligation:obligation.obligation}} ש"ח.</strong>
+                        </md-list-item>
+                    </md-list>
+                </md-card-content> 
+            </md-card>
+            <md-card class="example-card" *ngIf="authService.canUpdate() || authService.belongsToUser(consumer.parent)" >
+                <md-card-header><md-card-title><h3>{{'consumer'|translate}}:</h3></md-card-title></md-card-header>
+                <md-card-content>
+                    <md-list>
+                        <md-list-item> 
+                            <strong>{{'username'|translate}}:</strong>
+                            <button md-button [routerLink]="['/לקוח', consumer.id]" color="primary">{{consumer.username}}</button>
+                        </md-list-item>
+                        <md-list-item>
+                            <strong>{{'name'|translate}}:</strong>
+                            <button  md-button [routerLink]="['/לקוח', consumer.id]" color="primary">{{consumer.firstname}}&nbsp; {{consumer.lastname}}</button>
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'personal_id'|translate}}:</strong>&nbsp; {{consumer.national_id}}
+                        </md-list-item>
+                        <md-list-item> 
+                            <strong>{{'phone'|translate}}:</strong>&nbsp; {{consumer.phone}} <span *ngIf="agent.phone!=''">&nbsp;/&nbsp;</span> {{consumer.mobile}}
+                        </md-list-item>   
+                    </md-list>
+                </md-card-content> 
+            </md-card>
+        </div>
+    </div>
+</div>
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

@@ -1,0 +1,95 @@
+<div md-dialog-content dir="RTL">
+<p *ngIf="!edit">{{'add_payment'|translate}}?</p>
+<p *ngIf="edit">{{'edit_payment'|translate}}?</p>
+<form novalidate [formGroup]="paymentForm" class="form-inline">
+  <md-select placeholder="{{'payment_art'|translate}}" formControlName="art" tabindex="1" [compareWith]="compareWith">
+    <md-option [value]="0">{{'shek'|translate}}</md-option>
+    <md-option [value]="1">{{'promotional'|translate}}</md-option>
+    <md-option [value]="2">{{'cash'|translate}}</md-option>
+    <md-option [value]="4">{{'bank_transfer'|translate}}</md-option>
+    <md-option [value]="5">{{'standing_order'|translate}}</md-option>
+  </md-select>
+  <valid-err [control]="paymentForm.controls['art']"></valid-err>
+  <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+    <input mdInput formControlName="shek_number" placeholder="{{'shek_number'|translate}}"/>
+  </md-form-field>
+  <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+    <input mdInput formControlName="bank_name" placeholder="{{'bank_name'|translate}}"/>
+  </md-form-field>
+  <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+    <input mdInput formControlName="bank_branch" placeholder="{{'bank_branch'|translate}}"/>
+  </md-form-field>
+  <md-form-field [ngClass]="{'dn':paymentForm.value.art!=0}">
+    <input mdInput [mdDatepicker]="picker1" placeholder="{{'shek_maturity_date'|translate}}" formControlName="shek_maturity_date">
+    <md-datepicker-toggle mdSuffix [for]="picker1"></md-datepicker-toggle>
+    <md-datepicker #picker1></md-datepicker>
+  </md-form-field>
+  <ng-container *ngIf="paymentForm.value.art>3 && paymentForm.value.bs_bank">
+    <ng-container *ngIf="paymentForm.value.bs_bank=='בנק פועלים'">
+      <strong>שם בעל החשבון</strong>: ניו ויזיון סיסי אס בע״מ
+      <br/><strong>מס' חשבון</strong>: 378746
+      <br/><strong>סניף</strong>:735
+    </ng-container>
+    <ng-container *ngIf="paymentForm.value.bs_bank=='בנק לאומי'">
+      <strong>שם בעל החשבון</strong>: ניו ויזיון סיסי אס בע״מ
+      <br/><strong>מס' חשבון</strong>: 25280095
+      <br/><strong>סניף</strong>: 896
+    </ng-container>
+    <ng-container *ngIf="paymentForm.value.bs_bank=='בנק הדואר'">
+      <strong>שם בעל החשבון</strong>: ניו ויזיון סיסי אס בע״מ
+      <br/><strong>מס' חשבון</strong>: 8130273
+    </ng-container>
+  </ng-container>
+  <md-select [ngClass]="{'dn':paymentForm.value.art<4}" formControlName="bs_bank" placeholder="{{'bank_name'|translate}}">
+    <md-option  value="בנק פועלים" style="text-align:right;">בנק פועלים</md-option>
+    <md-option  value="בנק לאומי" style="text-align:right;">בנק לאומי</md-option>
+    <md-option  value="בנק הדואר" style="text-align:right;">בנק הדואר</md-option>
+</md-select>
+  <md-form-field>  
+    <img mdSuffix *ngIf="agentSearch" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+    <md-chip-list mdPrefix #chipList >
+        <md-chip  [selectable]="selectable" [removable]="removable" (remove)="resetUser()" *ngIf="selectedAgent._username!=''">
+            {{selectedAgent._username|translate}}
+            <md-icon mdChipRemove *ngIf="removable">cancel</md-icon>
+        </md-chip>
+    </md-chip-list>
+    <input 
+        mdInput 
+        placeholder="{{'agent'|translate}}"
+        [mdChipInputFor]="chipList"
+        [mdChipInputSeparatorKeyCodes]="separatorKeysCodes"
+        [mdChipInputAddOnBlur]="addOnBlur"
+        formControlName="agent_id" 
+        aria-label="Number"  
+        [mdAutocomplete]="auto" 
+        tabindex="1"
+        (keyup)="searchAgent($event)" 
+        (focusout)="chooseAgent($event)" 
+    />
+    <md-autocomplete #auto="mdAutocomplete" [displayWith]="displayFn">
+        <md-option *ngFor="let option of filteredOptions|async" [value]="option" style="text-align:right;">
+        {{ option._username }}
+        </md-option>
+    </md-autocomplete>
+ </md-form-field>
+  <valid-err [control]="paymentForm.controls['agent_id']"></valid-err>
+  <md-form-field>
+    <input mdInput formControlName="amount" placeholder="{{'amount'|translate}}"/>
+    <valid-err [control]="paymentForm.controls['amount']"></valid-err>
+  </md-form-field>
+  <md-form-field>
+    <input mdInput [mdDatepicker]="picker" placeholder="{{'choose_a_date'|translate}}" formControlName="related_to_date">
+    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+    <md-datepicker #picker></md-datepicker>
+  </md-form-field>
+  <md-form-field>
+    <textarea mdInput formControlName="note" placeholder="{{'note'|translate}}"></textarea>
+  </md-form-field>
+  <input type="hidden" formControlName="id" *ngIf="edit"/>
+</form>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="btnOff()">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

@@ -1,0 +1,25 @@
+.sim-list {
+    display: block;
+    max-height: 100px;
+    overflow: auto;
+}
+
+.sim-list:focus,
+.sim-list *:focus {
+    outline: none;
+}
+
+
+.mat-select,.mat-form-field {
+    display: block;
+    width: 100%;
+}
+.dn {
+    display: none!important;
+}
+md-select{
+    margin-bottom: 10px;
+}
+md-slide-toggle{
+    display: block;
+}
