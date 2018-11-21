@@ -79,8 +79,8 @@
                 <md-cell *mdCellDef="let row">
                     <ng-container *ngIf="(row.days_or_months=='months' && row.days_or_months_numbers==1 && row.status=='completed')">
                             <mat-slide-toggle [checked]="row.automatic_update=='1'" (change)="setAutomaticUpdate(row,$event)" color="primary"></mat-slide-toggle>
-                           
-                                <md-select [(ngModel)]="row.months" placeholder="{{'months'|translate}}">
+                            <ng-container *ngIf="row.automatic_update=='1'">
+                                <md-select [(ngModel)]="row.months" placeholder="{{'months'|translate}}" (change)="setAutomaticUpdate(row,$event)">
                                   <md-option value="1">1</md-option>
                                   <md-option value="2">2</md-option>
                                   <md-option value="3">3</md-option>
@@ -93,7 +93,7 @@
                                   <md-option value="10">10</md-option>
                                   <md-option value="11">11</md-option>
                                 </md-select>
-                              
+                            </ng-container>
                         </ng-container>
                     </md-cell>
             </ng-container>

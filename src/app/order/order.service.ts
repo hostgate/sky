@@ -112,7 +112,7 @@ export class OrderService {
     this.tokenService.init();
     return this.http.put(this.apiRoot+'order/completed.php', order,this.options); 	    
   }
-  set_automatic_update(order_id){
+  set_automatic_update(order_id,months){
     let headers = new Headers({'Content-Type': 'application/json'});  
     let ls = localStorage.getItem('currentUser');
     let jls=JSON.parse(ls);
@@ -120,7 +120,12 @@ export class OrderService {
     headers.append('Authorization',`Bearer ${authToken}`)
     this.options = new RequestOptions({headers: headers});
     this.tokenService.init();
-    return this.http.put(this.apiRoot+'order/set_automatic_update.php', {id:order_id},this.options); 	    
+    let data:any={id:order_id};
+    if(months && months!=null && parseInt(months)>0 && parseInt(months)<12){
+      data.months=parseInt(months);
+    }
+    
+    return this.http.put(this.apiRoot+'order/set_automatic_update.php', data,this.options); 	    
   }
   
   release_member(order:Order) {

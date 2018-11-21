@@ -12,9 +12,9 @@ import { MemberService } from '../member/member.service';
 import { OrderService } from '../order/order.service';
 import { ConsumerService } from '../consumer/consumer.service';
 import { UsersService } from '../users/users.service';
-import { AuthenticationService } from '../../../29_09_2017/src/app/login/authentication.service';
 import { ObligationComponent } from './obligation/obligation.component';
 import { ObligationService } from '../users/obligation.service';
+import { AuthenticationService } from '../login/authentication.service';
 @NgModule({
   imports: [
     CommonModule,

@@ -211,12 +211,11 @@ export class OrderComponent implements OnInit {
     if(!e.checked){
       mes='ביטול חידוש חודשי להזמנה';
     }
-    this.orderService.set_automatic_update(row.id).subscribe(res=>{
+    this.orderService.set_automatic_update(row.id,row.months).subscribe(res=>{
       this.snackBar.open(mes, row.phone , {
         duration: 5000,
       });
       this.ngOnInit();
-      //this.agent.allow_account_exception=this.agent.allow_account_exception=='1'?'0':'1';
     });
   }
 }
