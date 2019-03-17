@@ -92,6 +92,7 @@ export class ProfileComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.id =+params['id'];
       this.loadCustomer();
+      //console.log(this.customer);
     });
   }
   load_orders:number=null;

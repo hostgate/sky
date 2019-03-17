@@ -28,6 +28,7 @@ import { ExcelService } from '../excel.service';
 import { AuthenticationService } from '../login/authentication.service';
 import { HotmobileStatusService } from '../hotmobile-status/hotmobile-status.service';
 import { CellcomStatusService } from '../cellcom-status/cellcom-status.service';
+import { EditMobilityComponent } from './edit-mobility/edit-mobility.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -103,7 +104,8 @@ import { CellcomStatusService } from '../cellcom-status/cellcom-status.service';
     MobilityNumbersComponent, 
     ConfirmTransComponent, 
     PhoneInfoComponent, 
-    AddOrderComponent
+    AddOrderComponent, 
+    EditMobilityComponent
   ],
   entryComponents: [
     AddPhoneComponent, 
@@ -111,6 +113,8 @@ import { CellcomStatusService } from '../cellcom-status/cellcom-status.service';
     DeletePhoneDialog,
     ConfirmTransComponent,
     AddOrderComponent,
+    EditMobilityComponent
+
   ]
 })
 export class PhoneModule { }

@@ -29,8 +29,14 @@ export class HotmobileStatusService {
   connect(phone){
     return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'connect'},  this.getOptions()).map(x=>x.json());
   }
+  connect7(phone){
+    return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'connect7'},  this.getOptions()).map(x=>x.json());
+  }
   disconnect(phone){
-    return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'disconnect'},  this.getOptions()).map(x=>x.json());
+    return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'disconnect'},this.getOptions()).map(x=>x.json());
+  }
+  disconnect6(phone){
+    return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'disconnect6'},this.getOptions()).map(x=>x.json());
   }
   disconnect_all(phone){
     return this.http.put(this.apiRoot+'status_hotmobile/hot.php',{phone:phone,action:'disconnect',all:'1'},  this.getOptions()).map(x=>x.json());

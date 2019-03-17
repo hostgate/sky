@@ -4,7 +4,7 @@ import { GeneralReportComponent } from './general-report/general-report.componen
 import { MomentModule } from 'angular2-moment';
 import { MaterialModule } from '../material.module';
 import { YnModule } from '../pipes/yn.module';
-import { TranslateModule } from 'ng2-translate';
+import { TranslateModule, TranslateService } from 'ng2-translate';
 import { RouterModule } from '@angular/router';
 import { ValidErrModule } from '../valid-err/valid-err.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,6 +19,9 @@ import { CellcomStatusService } from '../cellcom-status/cellcom-status.service';
 import { AddRestComponent } from '../payment/add-rest/add-rest.component';
 import { PaymentService } from '../payment/payment.service';
 import { DisconnectMemberComponent } from './disconnect-member/disconnect-member.component';
+import { NewGeneralReportComponent } from '../report/new-general-report/new-general-report.component';
+import { LocalStorageService } from '../local-storage.service';
+import { UsersService } from '../users/users.service';
 @NgModule({
   imports: [
     CommonModule,
@@ -36,13 +39,15 @@ import { DisconnectMemberComponent } from './disconnect-member/disconnect-member
     GeneralReportComponent, 
     RefreshConnectComponent,
     AddRestComponent,
-    DisconnectMemberComponent
+    DisconnectMemberComponent,
+    NewGeneralReportComponent
   ],
   entryComponents: [
     GeneralReportComponent,
     RefreshConnectComponent,
     AddRestComponent,
-    DisconnectMemberComponent
+    DisconnectMemberComponent,
+    NewGeneralReportComponent
   ],
   providers: [
     { provide: OrderService, useClass: OrderService },
@@ -50,8 +55,11 @@ import { DisconnectMemberComponent } from './disconnect-member/disconnect-member
     { provide: CellcomStatusService, useClass: CellcomStatusService },
     { provide: ExcelService, useClass: ExcelService },
     { provide: ReportService, useClass: ReportService },
+    { provide: TranslateService,useClass: TranslateService},
+    { provide: LocalStorageService,useClass:LocalStorageService},
     { provide: PaymentService, useClass: PaymentService }, 
-    AuthenticationService
+    { provide: UsersService,useClass:UsersService},
+      AuthenticationService
   ],
 })
 export class ReportModule { }

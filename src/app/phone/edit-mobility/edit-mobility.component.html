@@ -1,0 +1,23 @@
+<div md-dialog-content dir="RTL" style="overflow:hidden;">
+  <p>{{'update'|translate}} </p>
+  <form novalidate [formGroup]="mobilityForm" class="form-inline">
+       
+      <md-form-field>
+          <input mdInput formControlName="phone" placeholder="{{'phone'|translate}}">
+          <valid-err [control]="mobilityForm.controls['phone']"></valid-err>
+      </md-form-field> 
+      <md-form-field>
+        <input mdInput formControlName="moved_to_phone" placeholder="{{'moved_to_phone'|translate}}">
+      </md-form-field>  
+      <md-slide-toggle mdInput formControlName="accepted_moved_to_phone"
+      class="example-margin"
+      [color]="'primary'">
+      {{'confirm_transfer'|translate}}
+  </md-slide-toggle>   
+  </form>
+</div>
+<div md-dialog-actions dir="RTL">
+  <button md-button color="primary" (click)="save()" tabindex="2" [disabled]="!mobilityForm.valid">{{'save'|translate}}</button>
+  <button md-button color="warn" (click)="onNoClick()" tabindex="-1">{{'no_thanks'|translate}}</button>
+</div>
+<md-spinner *ngIf="loading" style="position:absolute;top:100px;right:50%;z-index:9999999999;"></md-spinner>

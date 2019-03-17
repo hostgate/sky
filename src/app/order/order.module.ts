@@ -29,6 +29,7 @@ import { ProductAgentService } from '../product/product-agent.service';
 import { SettingsService } from '../settings/settings.service';
 import { ExcelService } from '../excel.service';
 import { AuthenticationService } from '../login/authentication.service';
+import { AutoUpdateComponent } from './auto-update/auto-update.component';
 @NgModule({
   imports: [
     CommonModule,
@@ -51,7 +52,8 @@ import { AuthenticationService } from '../login/authentication.service';
     DeleteComponent, 
     CancelComponent, 
     DeclineComponent,
-    AddComponent
+    AddComponent,
+    AutoUpdateComponent
   ],
   declarations: [
     OrderComponent, 
@@ -60,7 +62,8 @@ import { AuthenticationService } from '../login/authentication.service';
     DeleteComponent, 
     CancelComponent, 
     DeclineComponent, 
-    AddComponent
+    AddComponent, 
+    AutoUpdateComponent
   ],
   providers: [
     { provide: UsersService, useClass: UsersService },

@@ -77,6 +77,7 @@ export class EditConsumerComponent implements OnInit {
       phone:[consumer.phone,this.validationService.phoneValidation],
       mobile:[consumer.phone],
       birthday:[consumer.birthday],
+      payment_methods:[consumer.payment_methods],
       level_id:[4],
       parent: [consumer.parent, Validators.required],
     });

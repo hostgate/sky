@@ -69,12 +69,14 @@ export class MemberSearchComponent implements OnInit {
   }
   searchCustomers(search){
     this.home.loading=true;
-    this.consumerService.getSearch(search).subscribe(res=>{
+    this.memberService.getSearchFromNote(search).subscribe(res=>{
       this.home.loading=false;
       if(res && !res['message']){
         this.home.customers=res;
+       // console.log(res);
       }
     });
+   // this.home.customers=[];
   }
   searchAgents(search){
     this.home.loading=true;

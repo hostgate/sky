@@ -16,4 +16,5 @@ export class Consumer {
     level_id: number=4;
     parent:number=0;
     parent_name:string;
+    payment_methods:string;
 }

@@ -55,7 +55,7 @@ export class UsersService {
     let authToken=jls.token;
     headers.append('Authorization',`Bearer ${authToken}`)
     this.options = new RequestOptions({headers: headers});
-    return this.http.get(this.apiRoot+'user/get.php?group=agent&search='+search,this.options).map(x=>x.json());
+    return this.http.get(this.apiRoot+'user/get.php?group=agent&search='+search,this.options).distinctUntilChanged().debounceTime(50).filter(()=>search.length>2).map(x=>x.json());
   }
   getUserLevels() :Observable<Array<Level>>{
     let headers = new Headers({'Content-Type': 'application/json'});  

@@ -38,6 +38,8 @@ import { ExcelChargeComponent } from "./excel-order/excel-charge/excel-charge.co
 import { AgentsCreditsComponent } from "./agents-credits/agents-credits/agents-credits.component";
 import { IpPermissonComponent } from "./ip-permission/ip-permisson/ip-permisson.component";
 import { CellcomStatusComponent } from "./cellcom-status/cellcom-status/cellcom-status.component";
+import { AutoUpdateComponent } from "./order/auto-update/auto-update.component";
+import { NewGeneralReportComponent } from "./report/new-general-report/new-general-report.component";
 const appRoutes: Routes = [ 
     { path: '',      component: HomeComponent , canActivate: [AuthGuard]},
     { path: 'חברות',      component: CompanyComponent , canActivate: [AuthGuard,CanEditGuard]},
@@ -72,8 +74,10 @@ const appRoutes: Routes = [
     { path: 'הגדרות',      component: SettingsComponent , canActivate: [AuthGuard,AdminGuard]},
     { path: 'הרשאות',      component: IpPermissonComponent , canActivate: [AuthGuard,AdminGuard]},
     { path: 'השוואות',      component: ComparisonsComponent , canActivate: [AuthGuard,CanEditGuard]},
+    { path: 'חידוש-אוטומאטי',      component: AutoUpdateComponent , canActivate: [AuthGuard,CanEditGuard]},
     { path: 'חשבונות-סוכנים',      component: AgentsCreditsComponent , canActivate: [AuthGuard,CanEditGuard]},
     { path: 'דוח-כללי',      component: GeneralReportComponent , canActivate: [AuthGuard]},
+    { path: 'דוח-כללי-חדש',      component: NewGeneralReportComponent , canActivate: [AuthGuard]},
     { path: 'הזמנה/:id',      component: OrderInfoComponent , canActivate: [AuthGuard]},
     { path: '**', redirectTo: '', canActivate: [AuthGuard] },
   ];

@@ -53,6 +53,7 @@ export class AddMemberComponent implements OnInit {
       }
     });
   }
+  //_agents:any[]=null;
   constructor(private memberService:MemberService,
               private usersService:UsersService,
               private consumerService:ConsumerService,
@@ -66,7 +67,10 @@ export class AddMemberComponent implements OnInit {
               private productService:ProductService
    
   ) {
-   
+      // this.usersService.getAgents().subscribe(res=>{
+      //   this._agents=res;
+      //   console.log(this._agents);
+      // });
       this.lan=this.lsService.getStorage('lan');
   
     this.trans.onLangChange.subscribe((event: LangChangeEvent) => {

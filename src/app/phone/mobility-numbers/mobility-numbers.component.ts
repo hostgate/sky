@@ -15,6 +15,7 @@ import { TranslateService, LangChangeEvent } from 'ng2-translate';
 import { LocalStorageService } from '../../local-storage.service';
 import { ExcelService } from '../../excel.service';
 import { AuthenticationService } from '../../login/authentication.service';
+import { EditMobilityComponent } from '../edit-mobility/edit-mobility.component';
 
 @Component({
   selector: 'app-mobility-numbers',
@@ -67,9 +68,16 @@ export class MobilityNumbersComponent implements OnInit {
   phones:Phone[];
   loading:Boolean=false;
   companies:Company[];
-  //companyProducts:Product[];
   item:Phone;
-  
+  edit(row){
+    let dialogRef=this.dialog.open(EditMobilityComponent,{
+      width:'310px',
+      data:{row:row,data:this}
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.loadPhones();
+    });
+  }
   getCompanyName(id:number){
     if(id==0 || !this.companies){
       return '';

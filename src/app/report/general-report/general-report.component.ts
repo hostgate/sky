@@ -21,7 +21,7 @@ export class GeneralReportComponent implements OnInit {
   sum_price:any=0.0;sum_price_agent:any=0.0;sum_profit:any=0.0;all_rows:Boolean=false; page=1;limit=100;totalCount=0;
   sum_rest:any=0.0;
   pages=[];__trans:Boolean=false;_begin=null;_end=null;
-  displayedColumns=['last_update_sec','phone','agent_name','product_name','status','price','price_agent','rest','profit','id'];
+  displayedColumns=['valid_from_sec','last_update_sec','phone','agent_name','product_name','status','note','price','price_agent','rest','profit','id'];
   @ViewChild('filter') filter: ElementRef;
   @ViewChild('filter1') filter1: ElementRef;
   @ViewChild(MdSort) sort: MdSort;
@@ -108,13 +108,14 @@ export class GeneralReportComponent implements OnInit {
     this.ds.getFSData().forEach(el=>{
       let a:any={
         'id':el.id,
-        'עדכון אחרון':el.last_update,
+        'ביצוע הזמנה':el.valid_from,
         'טלפון':this.getPhone(el),
         'סוכן':el.agent_name,
         'סים':el.sim,
         'חברה':el.company_name,
         'חבילה':el.product_name,
         'סטטוס':this.transStatus(el.status) ,
+        'הערה':el.note ,
         'פעיל עד':el.status==='completed'?('עד :'+el.completed_date):'לא פעיל',
         'מחיר מומלץ':el.price,
         'עלות':el.price_agent,
@@ -179,9 +180,19 @@ export class GeneralReportComponent implements OnInit {
     this.filter1.nativeElement.value=status;
     this.orders=this.alls;
     if(this.authService.isAgent())this.orders=this.orders.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
-    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)>=Date.parse(this._begin)*0.001);
-    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)<(86400+Date.parse(this._end)*0.001));
-    if(status!='')this.orders=this.orders.filter(el=>el.status==status);
+    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)>=Date.parse(this._begin)*0.001);
+    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)<(86400+Date.parse(this._end)*0.001));
+    if(status!=''){
+      if(status=='new'){
+        this.orders=this.orders.filter(el=>el.status=='new' || (el.status=='completed' && el.count_orders==1));
+      }
+      else if(status=='finished'){
+        this.orders=this.orders.filter(el=>el.status=='finished' &&  el.count_after==0);
+      }
+      else{
+        this.orders=this.orders.filter(el=>el.status==status);
+      }
+    }
     this.initOrderDatabase();
   }
   _trans(status){
@@ -189,8 +200,8 @@ export class GeneralReportComponent implements OnInit {
     this.filter1.nativeElement.value=status;
     this.orders=this.alls;
     if(this.authService.isAgent())this.orders=this.orders.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
-    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)>=Date.parse(this._begin)*0.001);
-    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)<(86400+Date.parse(this._end)*0.001));
+    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)>=Date.parse(this._begin)*0.001);
+    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)<(86400+Date.parse(this._end)*0.001));
     this.orders=this.orders.filter(el=>el.moved_to_phone!='0');
     let _orders:any=[];
     this.orders.reverse().forEach(el=>{
@@ -203,8 +214,8 @@ export class GeneralReportComponent implements OnInit {
   setDates(){
     this.orders=this.alls;
     if(this.authService.isAgent())this.orders=this.orders.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId())); 
-    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)>=Date.parse(this._begin)*0.001);
-    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.created_at_sec)<(86400+Date.parse(this._end)*0.001));
+    if(this._begin!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)>=Date.parse(this._begin)*0.001);
+    if(this._end!=null)this.orders=this.orders.filter(el=> parseInt(el.valid_from_sec)<(86400+Date.parse(this._end)*0.001));
     if(this.filter1.nativeElement.value && this.filter1.nativeElement.value!=''){
       let status=this.filter1.nativeElement.value;
       this.orders=this.orders.filter(el=>el.status==status); 

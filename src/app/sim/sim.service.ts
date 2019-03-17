@@ -24,6 +24,34 @@ export class SimService {
     this.tokenService.init();
     return this.http.get(this.apiRoot+'sim/get.php?all=1', this.options).map(x=>x.json());
   }
+  get(order:string,direction:string,page:number,search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'sim/get_all.php?order='+order+'&direction='+direction+'&page='+page;
+    if(search && search.length>0){
+      url+='&search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
+  getExcel(search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'sim/get_excel.php';
+    if(search && search.length>0){
+      url+='?search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
   getSims() :Observable<Array<Sim>>{
     let headers = new Headers({'Content-Type': 'application/json'});  
     let ls = localStorage.getItem('currentUser');

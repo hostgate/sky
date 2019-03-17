@@ -15,6 +15,41 @@ export class MemberService {
   constructor(private _http:Http,private tokenService: Angular2TokenService) { 
     this.http = _http;
   }
+  get(order:string,direction:string,page:number,search:string,agent_id=0,status=0){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'member/get_all.php?order='+order+'&direction='+direction+'&page='+page;
+    if(agent_id>0){
+      url+='&agent_id='+agent_id;
+    }
+    if(status){
+      url+='&status='+status;
+    }
+    if(search && search.length>0){
+      url+='&search='+search; 
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
+  getExcel(search:string,agent_id=0,status=0){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'member/get_excel.php?agent_id='+agent_id+'&status='+status;
+   
+    if(search && search.length>0){
+      url+='&search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
   delete(id:number){
     let headers = new Headers({'Content-Type': 'application/json'});  
     let ls = localStorage.getItem('currentUser');
@@ -43,7 +78,17 @@ export class MemberService {
     headers.append('Authorization',`Bearer ${authToken}`)
     this.options = new RequestOptions({headers: headers});
     this.tokenService.init();
-    return this.http.get(this.apiRoot+'member/get.php?number_search='+number_search,this.options).map(x=>x.json());
+    return this.http.get(this.apiRoot+'member/get.php?number_search='+number_search,this.options).distinctUntilChanged().debounceTime(50).filter(()=>number_search.length>5).map(x=>x.json());
+  }
+  getSearchFromNote(note:string) :Observable<Array<Member>>{
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    return this.http.get(this.apiRoot+'member/getSearchFromNote.php?note='+note,this.options).distinctUntilChanged().debounceTime(50).filter(()=>note.length>3).map(x=>x.json());
   }
   getMembers() :Observable<Array<Member>>{
     let headers = new Headers({'Content-Type': 'application/json'});  

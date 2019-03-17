@@ -342,14 +342,12 @@ export class NewChargeComponent implements OnInit {
         }
         this.loading2=true;
         this.loading=true;
-       // console.log(order);
         this.agentService.addMemberAndOrder(order).subscribe(res=>{
           this.loading2=false;
           this.loading=false;
-          this.router.navigate(['/מספר/'+order.phone_id ]);
+          this.router.navigate(['/מספר/'+order.phone_id]);
         });
-    }
-        
+    }   
       });
     
   }  

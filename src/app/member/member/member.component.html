@@ -2,11 +2,35 @@
 <md-toolbar>
     <button md-button (click)="openAddDialog()" style="position: relative;
     float: left;margin-bottom:5px;margin-right:10px"><md-icon color="primary">add_circle</md-icon></button>
-    <button md-button style="position: relative;
-    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+    <!-- <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button> -->
     
 </md-toolbar>
 <div class="example-container mat-elevation-z8">
+        <div class="example-header" *ngIf="authService.canUpdate() && agents && agents.length>0">
+                <table>
+                    <tr>
+                        <td>
+                                <md-select placeholder="בחר נקודת מכירה" (change)="selectAgent()" [(ngModel)]="agent_id">
+                                        <md-option value="0">הכל</md-option>
+                                    <md-option *ngFor="let agent of agents" [value]="agent.id">{{agent.firstname}} {{agent.lastname}}</md-option>
+                                </md-select> 
+                        </td>
+                        <td style="width:15px;"></td>
+                        <td>
+                                <md-select placeholder="בחר סטאטוס" (change)="selectStatus()" [(ngModel)]="status">
+                                        <md-option value="0">הכל</md-option>
+                                        <md-option value="completed">פעיל</md-option>
+                                        <md-option value="cancel">מבוטל</md-option>
+                                        <md-option value="disconnected">נטען בעבר</md-option>
+                                        <md-option value="finished">פג תוקף</md-option>
+                                </md-select>
+                        </td>
+                    </tr>
+                </table>
+               
+               
+            </div>
         <div class="example-header">
             <md-form-field floatPlaceholder="never">
                 <input mdInput placeholder="{{'search'|translate}}" #filter>
@@ -21,11 +45,16 @@
                     <button md-button [routerLink]="['/סוכן', row.agent_id]" routerLinkActive="active" color="primary">{{row.agent_name}} </button>
                 </md-cell>
             </ng-container> 
-            <ng-container mdColumnDef="consumer_name">
-                <md-header-cell *mdHeaderCellDef md-sort-header>{{'consumer'|translate}} </md-header-cell>
-                <md-cell *mdCellDef="let row">  
-                        <button md-button [routerLink]="['/לקוח', row.consumer_id]" routerLinkActive="active" color="primary">{{row.consumer_name}} </button>
-                </md-cell>
+            <ng-container mdColumnDef="status" >
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row"> 
+                        <ng-container *ngIf="row.has_orders;else blank;">
+                                <button  *ngIf="row.status!='completed'" md-button [routerLink]="['/הזמנה', row.order_id]" routerLinkActive="active" color="warn">{{row.status|translate}}</button>
+                                <button  *ngIf="row.status=='completed'" md-button [routerLink]="['/הזמנה', row.order_id]" routerLinkActive="active" color="primary">{{row.status|translate}}</button>
+                        </ng-container> 
+                        
+                        <ng-template #blank>--</ng-template>
+                    </md-cell>
             </ng-container>
             <ng-container mdColumnDef="company_name">
                 <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
@@ -82,7 +111,22 @@
             <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
             <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
         </md-table>
-        <md-paginator #paginator [length]="membersDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+        <md-paginator #paginator [length]="membersDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]" style="display:none;">
         </md-paginator>
+        <nav aria-label="..." style="padding:0 10px;">
+            <ul class="pager" *ngIf="current_total>0">
+              <li class="" [ngClass]="{'disabled':pageIndex==1,'previous':true}"><a (click)="prev()" style="cursor:pointer;"><span aria-hidden="true">&rarr;</span> הקודם</a></li>
+              <li>
+                  <span>דף {{pageIndex}} &nbsp; מ &nbsp; {{total_pages}}&nbsp;| &nbsp;{{((pageIndex-1)*30)+1}} <i class=""></i>&nbsp;- &nbsp;{{((pageIndex-1)*30)+current_total}}&nbsp; מ &nbsp;{{resultsLength}}</span>
+              </li>
+              <li>
+                    <a (click)="loadExcel()" style="cursor:pointer;">{{'excel'|translate}} ({{current_total}})</a>
+              </li>
+              <li>
+                    <a (click)="loadExcel2()" style="cursor:pointer;">{{'excel'|translate}} ({{resultsLength}})</a>
+              </li>
+              <li class="next" [ngClass]="{'disabled':pageIndex==total_pages,'next':true}"><a (click)="next()" style="cursor:pointer;">הבא <span aria-hidden="true">&larr;</span></a></li>
+            </ul>
+          </nav>
     </div>
     <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

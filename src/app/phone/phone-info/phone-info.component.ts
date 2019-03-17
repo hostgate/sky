@@ -45,7 +45,7 @@ export class PhoneInfoComponent implements OnInit {
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild('fileInput') fileInput;
-  displayedColumns = [ 'last_update_sec','agent_name','product_name','status','id'];
+  displayedColumns = [ 'last_update_sec','agent_name','product_name','status','note','id'];
   db = new DB([]);
   ds: DS | null;
   initOrderDatabase(){

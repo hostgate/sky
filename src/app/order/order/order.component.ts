@@ -15,6 +15,7 @@ import { LocalStorageService } from '../../local-storage.service';
 import { ExcelService } from '../../excel.service';
 import * as moment from 'moment/moment';
 import { AuthenticationService } from '../../login/authentication.service';
+import {merge} from 'rxjs/observable/merge';
 @Component({
   selector: 'app-order',
   templateUrl: './order.component.html',
@@ -23,6 +24,43 @@ import { AuthenticationService } from '../../login/authentication.service';
 export class OrderComponent implements OnInit {
   orders:Order[]=null;
   loading:Boolean=false;
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  total_pages=0;
+  current_total=0;
+  pageIndex=0;
+  init_data(data){
+    this.loading = false;
+    this.isRateLimitReached = false;
+    this.resultsLength = data.total_count;
+    this.total_pages=data.total_pages;
+    this.current_total=data.items.length;
+    this.orders=data.items;
+    this.db = new DB(data.items);
+    this.paginator.pageIndex=0;
+    this.ds = new DS(this.db, this.sort, this.paginator);
+  }
+  prev(){
+    if(this.pageIndex>1){
+      this.pageIndex=this.pageIndex-1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.orderService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
+  }
+  next(){
+    if(this.pageIndex<this.total_pages){
+      this.pageIndex=this.pageIndex+1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.orderService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
+  }
   @ViewChild('filter') filter: ElementRef;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild(MdPaginator) paginator: MdPaginator;
@@ -111,9 +149,55 @@ export class OrderComponent implements OnInit {
      });
      this.excelService.exportAsExcelFile(excel, 'הזמנות');
    }
+   loadExcel2(){
+    this.loading=true;
+   this.orderService.getExcel(this.filter.nativeElement.value).subscribe(res=>{
+      this.loading=false;
+      let excel:any=[];
+      res.items.forEach(el=>{
+      let a:any={
+        'id':el.id,
+        'טלפון':this.getPhone(el),
+        'תאריך יצירה':el.created_at,
+        'מנויד ל' :el.moved_to_phone==='0'?'':el.moved_to_phone,
+        'ניוד פעיל':el.moved_to_phone==='0'?'':el.accepted_moved_to_phone==='1'?'כן':'לא',
+        'בשימוש':  el.used==='1'?'כן':'לא',      
+        'סוכן':el.agent_name,
+        'חברה':el.company_name,
+        'חבילה':el.product_name,
+        'אינטרנט':el.internet==0?'':el.internet,
+        'עדכון אינטרנט':el.internet==0?'':el.internet_update,
+      }
+      excel.push(a);
+    });
+    this.excelService.exportAsExcelFile(excel, 'הזמנות');
+   })
+  }
   ngOnInit() {
+    this.sort.sortChange.subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    Observable.fromEvent(this.filter.nativeElement,'keyup').subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    
+      merge(this.sort.sortChange, this.paginator.page,Observable.fromEvent(this.filter.nativeElement,'keyup'))
+          .startWith({})
+          .debounceTime(150)
+          .distinctUntilChanged()
+          .switchMap(() => {
+            let active=this.sort.active?this.sort.active:'id';
+            let direction=this.sort.direction?this.sort.direction:'asc';
+            this.pageIndex=this.pageIndex+1
+            let search=this.filter.nativeElement.value;
+            this.loading = true;
+            return this.orderService!.get(active, direction, this.pageIndex,search);
+          }).
+          map(data => {this.init_data(data);})
+        .subscribe(data =>  {
+      });
     this.newOrder();
-    this.loadOrders();
+    //this.loadOrders();
   }
   newOrder(){
     let o:Order=new Order();
@@ -123,9 +207,9 @@ export class OrderComponent implements OnInit {
     o.product_id=12;
   }
   loadOrders(){
-    this.orderService.getOrders().subscribe(res => {
+    this.orderService.get('id','desc',1,'').subscribe(res => {
         if(res && !res['message']){
-          this.orders=res; 
+          this.orders=res.items; 
           if(this.authService.isAgent()){
             this.orders=this.orders.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
           }
@@ -141,7 +225,7 @@ export class OrderComponent implements OnInit {
   }
   releaseMember(order){
     this.orderService.release_member(order).subscribe(res=>{
-      this.loadOrders();
+      this.ngOnInit();
     });
   }
   add(){
@@ -150,25 +234,16 @@ export class OrderComponent implements OnInit {
       data:{order:this}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadOrders();
+      this.ngOnInit();
     });
   }
-  // delete(id:number){
-  //   let dialogRef=this.dialog.open(DeleteComponent,{
-  //     width:'310px',
-  //     data:{id:id,order:this.orders.filter(order=> order.id==id)[0]}
-  //   });
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     this.loadOrders();
-  //   });
-  // }
   complete(order:Order){
     let dialogRef=this.dialog.open(CompleteComponent,{
       width:'310px',
       data:{id:order.id,order:order,data:this}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadOrders();
+      this.ngOnInit();
     });
   }
   decline(order:Order){
@@ -177,7 +252,7 @@ export class OrderComponent implements OnInit {
       data:{id:order.id,order:order,data:this}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadOrders();
+      this.ngOnInit();
       
     });
   }
@@ -187,7 +262,7 @@ export class OrderComponent implements OnInit {
       data:{id:order.id,order:order,data:this}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadOrders();
+      this.ngOnInit();
       
     });
   }
@@ -206,16 +281,26 @@ export class OrderComponent implements OnInit {
     });
   }
   setAutomaticUpdate(row,e){
-    
-    let mes='הזמנה זו תתחדש חודשי!!';
+    let mes='הזמנה זו תתחדש חודשי!! למשך '+11+' חודשים..';
     if(!e.checked){
       mes='ביטול חידוש חודשי להזמנה';
+      row.months=false;
+      row.automatic_update='0';
     }
-    this.orderService.set_automatic_update(row.id,row.months).subscribe(res=>{
-      this.snackBar.open(mes, row.phone , {
-        duration: 5000,
-      });
-      this.ngOnInit();
+    else{
+      row.automatic_update='1';
+      row.months='11';
+    }
+    this.snackBar.open(mes, row.phone , {
+      duration: 5000,
     });
+    this.orderService.set_automatic_update(row.id,row.months).subscribe();
+  }
+  setAutomaticUpdate1(row,e){
+    let mes='הזמנה זו תתחדש חודשי!! למשך '+row.months+' חודשים..';
+    this.snackBar.open(mes, row.phone , {
+      duration: 5000,
+    });
+    this.orderService.set_automatic_update(row.id,row.months).subscribe();
   }
 }

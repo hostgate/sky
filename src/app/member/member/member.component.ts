@@ -26,6 +26,8 @@ import { ExcelService } from '../../excel.service';
 import { AuthenticationService } from '../../login/authentication.service';
 import { BlockMemberComponent } from '../block-member/block-member.component';
 import { ResetMemberComponent } from '../reset-member/reset-member.component';
+import {merge} from 'rxjs/observable/merge';
+import {of as observableOf} from 'rxjs/observable/of';
 @Component({
   selector: 'app-member',
   templateUrl: './member.component.html',
@@ -43,6 +45,7 @@ export class MemberComponent implements OnInit {
   @ViewChild(MdPaginator) paginator: MdPaginator;
   @ViewChild('fileInput') fileInput;
   lan:any;
+  agents:any[]=null;
   constructor(
     private memberService:MemberService,
     private userService:UsersService,
@@ -62,9 +65,38 @@ export class MemberComponent implements OnInit {
     public authService:AuthenticationService) { 
       this.lan=this.lsService.getStorage('lan');
       this.trans.onLangChange.subscribe((event: LangChangeEvent) => {
+        
         this.lan=event.lang;
       });
       localStorage.setItem('currentComponent','app-member');
+  }
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  total_pages=0;
+  current_total=0;
+  pageIndex=0;
+  agent_id:any=0;
+  status:any=0;
+  prev(){
+    if(this.pageIndex>1){
+      this.pageIndex=this.pageIndex-1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.memberService!.get(active, direction, this.pageIndex,search,this.agent_id,this.status).subscribe(data => {this.init_data(data);});
+    }
+  }
+  next(){
+    if(this.pageIndex<this.total_pages){
+      this.pageIndex=this.pageIndex+1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.memberService!.get(active, direction, this.pageIndex,search,this.agent_id,this.status).subscribe(data => {this.init_data(data);});
+    }
   }
   getPhone(el){
     if(el.moved_to_phone && el.moved_to_phone!=0) return el.moved_to_phone; return el.phone;
@@ -75,9 +107,7 @@ export class MemberComponent implements OnInit {
       let a:any={
         'id':el.id,
         'סוכן':el.agent_name,
-        'לקוח':el.consumer_name,
         'פעיל':el.active===1?'כן':'לא',
-        'תעודת זהות לקוח' :el.consumer_national_id,
         'חברה':el.company_name,
         'טלפון':  this.getPhone(el),
         'מניוד ל':el.moved_to_phone==='0'?'':el.moved_to_phone, 
@@ -87,6 +117,26 @@ export class MemberComponent implements OnInit {
       excel.push(a);
     });
     this.excelService.exportAsExcelFile(excel, 'מנויים');
+  }
+  loadExcel2(){
+    this.loading=true;
+   this.memberService.getExcel(this.filter.nativeElement.value,this.agent_id,this.status).subscribe(res=>{
+      this.loading=false;
+      let excel:any=[];
+      res.items.forEach(el=>{
+      let a:any={
+        'id':el.id,
+        'סוכן':el.agent_name,
+        'פעיל':el.active===1?'כן':'לא',
+        'חברה':el.company_name,
+        'טלפון':  this.getPhone(el),
+        'מניוד ל':el.moved_to_phone==='0'?'':el.moved_to_phone, 
+        'סים':el.sim
+      }
+      excel.push(a);
+    });
+    this.excelService.exportAsExcelFile(excel, 'מנויים');
+   })
   }
   formOnInit(member:Member){
     let agent_id=null;
@@ -133,7 +183,7 @@ export class MemberComponent implements OnInit {
       data:{id:id,member:this.members.filter(member=> member.id==id)[0],data:this}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadMembers();
+      this.ngOnInit();
     });
   }
   reset(id:number){
@@ -146,7 +196,7 @@ export class MemberComponent implements OnInit {
       }
     });
     dialogRef.afterClosed().subscribe(result => { 
-      this.loadMembers();
+      this.ngOnInit();
     });
   }
   block(member,free){
@@ -155,7 +205,7 @@ export class MemberComponent implements OnInit {
       data:{id:member.id,member:member,data:this,free:free}
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadMembers();
+      this.ngOnInit();
     });
   }
   delete2(member2:any,url){
@@ -183,16 +233,55 @@ export class MemberComponent implements OnInit {
       this.loading=false;
     });
   }
+  selectAgent(){
+    this.paginator.pageIndex = 0;
+    this.pageIndex=0;
+    this.ngOnInit();
+  }
+  selectStatus(){
+    this.paginator.pageIndex = 0;
+    this.pageIndex=0;
+    this.ngOnInit();
+  }
   ngOnInit() {
+    this.userService.getAgents().subscribe(res=>{
+      this.agents=res;
+    })
+    this.sort.sortChange.subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    Observable.fromEvent(this.filter.nativeElement,'keyup').subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    
+      merge(this.sort.sortChange, this.paginator.page,Observable.fromEvent(this.filter.nativeElement,'keyup'))
+          .startWith({})
+          .debounceTime(150)
+          .distinctUntilChanged()
+          .switchMap(() => {
+            let active=this.sort.active?this.sort.active:'order_id';
+            let direction=this.sort.direction?this.sort.direction:'desc';
+            this.pageIndex=this.pageIndex+1
+            let search=this.filter.nativeElement.value;
+            this.loading = true;
+            return this.memberService!.get(active, direction, this.pageIndex,search,this.agent_id,this.status);
+          }).
+          map(members => {
+            if(this.authService.isAgent()){
+              members.items=members.items.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
+            }
+           return this.init_data(members);
+          })
+        .subscribe(data =>  {
+      });
     this.loadCompanies();
-    this.loadMembers();
   }
   addMember(member:Member){
     this.loading=true;
     this.memberService.add([member]).subscribe(res =>{
       this.loading=false;
       if(res['status']){
-        this.loadMembers();
+        this.ngOnInit();
       }
     }); 
   }
@@ -205,6 +294,7 @@ export class MemberComponent implements OnInit {
       }
     }); 
   }
+  
   navigateToPhone(member,url){
     let u:boolean=decodeURIComponent(url).indexOf('/מספר-טלפון') !== -1;
     if(u){
@@ -230,22 +320,7 @@ export class MemberComponent implements OnInit {
     dialogRef.afterClosed().subscribe();
   }
   
-  loadMembers(){
-    this.loading=true;
-    this.memberService.getMembers().subscribe(res=>{
-      if(!res['message']){
-        this.members=res;
-        if(this.authService.isAgent()){
-          this.members=this.members.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
-        }
-        this.initMemberDatabase();
-        this.loading=false;
-      }
-      else{
-        this.loading=false;
-      }
-    });
-  }
+  
  loadCompanies(){
    this.companyService.getCompanys().subscribe(res=>{
     if(!res['message']){
@@ -302,7 +377,7 @@ export class MemberComponent implements OnInit {
     }
     return member;
   }
-  displayedColumns = [ 'agent_name','consumer_name','company_name','phone','sim','id'];
+  displayedColumns = [ 'agent_name','status','company_name','phone','sim','id'];
   membersDatabase = new DB([]);
   dataSource: DS | null;
   initMemberDatabase(){
@@ -312,10 +387,22 @@ export class MemberComponent implements OnInit {
     .debounceTime(150)
     .distinctUntilChanged()
     .subscribe(() => {
+      this.paginator.pageIndex = 0;
+      this.pageIndex=0;
       if (!this.dataSource) { return; }
       this.dataSource.filter = this.filter.nativeElement.value;
     });
    
+  }
+  init_data(data){
+    this.loading = false;
+    this.isRateLimitReached = false;
+    this.resultsLength = data.total_count;
+    this.total_pages=data.total_pages;
+    this.current_total=data.items.length;
+    this.membersDatabase = new DB(data.items);
+    this.paginator.pageIndex=0;
+    this.dataSource = new DS(this.membersDatabase, this.sort, this.paginator);
   }
 }
 @Component({

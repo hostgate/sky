@@ -127,7 +127,26 @@ export class OrderService {
     
     return this.http.put(this.apiRoot+'order/set_automatic_update.php', data,this.options); 	    
   }
-  
+  automatic_to_list(list){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    return this.http.put(this.apiRoot+'order/automatic_to_list.php', list,this.options).map(x=>x.json()); 
+  }
+  cancel_automatic_to_list(list){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    return this.http.put(this.apiRoot+'order/cancel_automatic_to_list.php', list,this.options).map(x=>x.json()); 
+  }
   release_member(order:Order) {
     let headers = new Headers({'Content-Type': 'application/json'});  
     let ls = localStorage.getItem('currentUser');
@@ -158,6 +177,34 @@ export class OrderService {
     this.tokenService.init();
     return this.http.get(this.apiRoot+'order/orders_report.php?all='+all+'&page='+page+'&limit='+limit, this.options).map(x=>x.json());
   }
+  get(order:string,direction:string,page:number,search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'order/get_all.php?order='+order+'&direction='+direction+'&page='+page;
+    if(search && search.length>0){
+      url+='&search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
+  getExcel(search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'order/get_excel.php';
+    if(search && search.length>0){
+      url+='?search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
   getMemberOrders(member_id) :Observable<Array<Order>>{
     let headers = new Headers({'Content-Type': 'application/json'});  
     let ls = localStorage.getItem('currentUser');
@@ -166,7 +213,7 @@ export class OrderService {
     headers.append('Authorization',`Bearer ${authToken}`)
     this.options = new RequestOptions({headers: headers});
     this.tokenService.init();
-    return this.http.get(this.apiRoot+'order/get.php?member_id='+member_id, this.options).map(x=>x.json());
+    return this.http.get(this.apiRoot+'order/get.php?member_id='+member_id, this.options).distinctUntilChanged().debounceTime(50).map(x=>x.json());
   }
   getOrder(id:number) :Observable<Order>{
     let headers = new Headers({'Content-Type': 'application/json'});  

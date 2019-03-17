@@ -292,6 +292,10 @@
                         <md-header-cell *mdHeaderCellDef md-sort-header>{{'last_update'|translate}} </md-header-cell>
                         <md-cell *mdCellDef="let row">{{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}</md-cell>
                     </ng-container>
+                    <ng-container mdColumnDef="note">
+                      <md-header-cell *mdHeaderCellDef md-sort-header>{{'note'|translate}} </md-header-cell>
+                      <md-cell *mdCellDef="let row">{{row.note}}</md-cell>
+                  </ng-container>
                     <ng-container mdColumnDef="product_name">
                         <md-header-cell *mdHeaderCellDef md-sort-header>{{'product'|translate}} </md-header-cell>
                         <md-cell *mdCellDef="let row">

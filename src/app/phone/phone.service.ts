@@ -18,6 +18,34 @@ export class PhoneService {
   getPhones() :Observable<Array<Phone>>{
     return this.http.get(this.apiRoot+'phone/get.php',this.getOptions()).map(x=>x.json());
   }
+  get(order:string,direction:string,page:number,search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'phone/get_all.php?order='+order+'&direction='+direction+'&page='+page;
+    if(search && search.length>0){
+      url+='&search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
+  getExcel(search:string){
+    let headers = new Headers({'Content-Type': 'application/json'});  
+    let ls = localStorage.getItem('currentUser');
+    let jls=JSON.parse(ls);
+    let authToken=jls.token;
+    headers.append('Authorization',`Bearer ${authToken}`)
+    this.options = new RequestOptions({headers: headers});
+    this.tokenService.init();
+    let url=this.apiRoot+'phone/get_excel.php';
+    if(search && search.length>0){
+      url+='?search='+search;
+    }
+    return this.http.get(url, this.options).map(x=>x.json());
+  }
   getTrans() :Observable<Array<Phone>>{
     return this.http.get(this.apiRoot+'phone/get.php?trans=1', this.getOptions()).map(x=>x.json());
   }
@@ -40,7 +68,7 @@ export class PhoneService {
     return this.http.get(this.apiRoot+'phone/get_phone_last_order.php?id='+id, this.getOptions()).map(x=>x.json());
   }
   getSearch(search:string){
-    return this.http.get(this.apiRoot+'phone/get.php?search='+search, this.getOptions()).map(x=>x.json());
+    return this.http.get(this.apiRoot+'phone/get.php?search='+search, this.getOptions()).distinctUntilChanged().debounceTime(50).filter(()=>search.length>2).map(x=>x.json());
   }
   add(phone:Phone[]) {
     return this.http.post(this.apiRoot+'phone/add.php', phone, this.getOptions());     	    
@@ -99,6 +127,9 @@ export class PhoneService {
   }
   update(phone:Phone) {
     return this.http.put(this.apiRoot+'phone/edit.php', phone, this.getOptions());     	    
+  }
+  updateMobility(data) {
+    return this.http.put(this.apiRoot+'phone/update_mobility.php', data, this.getOptions());     	    
   }
   confirm_trans(phone:Phone) {
     return this.http.put(this.apiRoot+'phone/confirm_trans.php', phone, this.getOptions());     	    

@@ -22,6 +22,7 @@ import { Router } from '@angular/router';
 import { ExcelService } from '../../excel.service';
 import { AuthenticationService } from '../../login/authentication.service';
 import { ProductService } from '../../product/product.service';
+import {merge} from 'rxjs/observable/merge';
 @Component({
   selector: 'app-phone',
   templateUrl: './phone.component.html',
@@ -29,6 +30,42 @@ import { ProductService } from '../../product/product.service';
   providers: [ValidationService],
 })
 export class PhoneComponent implements OnInit {
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  total_pages=0;
+  current_total=0;
+  pageIndex=0;
+  init_data(data){
+    this.loading = false;
+    this.isRateLimitReached = false;
+    this.resultsLength = data.total_count;
+    this.total_pages=data.total_pages;
+    this.current_total=data.items.length;
+    this.phonesDatabase = new DB(data.items);
+    this.paginator.pageIndex=0;
+    this.dataSource = new DS(this.phonesDatabase, this.sort, this.paginator);
+  }
+  prev(){
+    if(this.pageIndex>1){
+      this.pageIndex=this.pageIndex-1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.phoneService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
+  }
+  next(){
+    if(this.pageIndex<this.total_pages){
+      this.pageIndex=this.pageIndex+1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.phoneService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
+  }
   @ViewChild('filter') filter: ElementRef;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild(MdPaginator) paginator: MdPaginator;
@@ -56,27 +93,51 @@ export class PhoneComponent implements OnInit {
        getPhone(el){
         if(el.moved_to_phone && el.moved_to_phone!=0) return el.moved_to_phone; return el.phone;
        }
-        loadExcel(){
-          let excel:any=[];
-          this.dataSource.getFSData().forEach(el=>{
-            let a:any={
-              'id':el.id,
-              'טלפון':this.getPhone(el),
-              'תאריך יצירה':el.created_at,
-              'מנויד ל' :el.moved_to_phone==='0'?'':el.moved_to_phone,
-              'ניוד פעיל':el.moved_to_phone==='0'?'':el.accepted_moved_to_phone==='1'?'כן':'לא',
-              'בשימוש':  el.used==='1'?'כן':'לא',     
-              'סוכן':el.agent_name,
-              'חברה':el.company_name,
-              'חבילה':el.product_name,
-              'אינטרנט':el.internet==0?'':el.internet,
-              'עדכון אינטרנט':el.internet==0?'':el.internet_update,
+      loadExcel(){
+        let excel:any=[];
+        this.dataSource.getFSData().forEach(el=>{
+          let a:any={
+            'id':el.id,
+            'טלפון':this.getPhone(el),
+            'תאריך יצירה':el.created_at,
+            'מנויד ל' :el.moved_to_phone==='0'?'':el.moved_to_phone,
+            'ניוד פעיל':el.moved_to_phone==='0'?'':el.accepted_moved_to_phone==='1'?'כן':'לא',
+            'בשימוש':  el.used==='1'?'כן':'לא',     
+            'סוכן':el.agent_name,
+            'חברה':el.company_name,
+            'חבילה':el.product_name,
+            'אינטרנט':el.internet==0?'':el.internet,
+            'עדכון אינטרנט':el.internet==0?'':el.internet_update,
 
-            }
-            excel.push(a);
-          });
-          this.excelService.exportAsExcelFile(excel, 'מספרי טלפון');
-        }
+          }
+          excel.push(a);
+        });
+        this.excelService.exportAsExcelFile(excel, 'מספרי טלפון');
+      }
+      loadExcel2(){
+        this.loading=true;
+       this.phoneService.getExcel(this.filter.nativeElement.value).subscribe(res=>{
+          this.loading=false;
+          let excel:any=[];
+          res.items.forEach(el=>{
+          let a:any={
+            'id':el.id,
+            'טלפון':this.getPhone(el),
+            'תאריך יצירה':el.created_at,
+            'מנויד ל' :el.moved_to_phone==='0'?'':el.moved_to_phone,
+            'ניוד פעיל':el.moved_to_phone==='0'?'':el.accepted_moved_to_phone==='1'?'כן':'לא',
+            'בשימוש':  el.used==='1'?'כן':'לא',      
+            'סוכן':el.agent_name,
+            'חברה':el.company_name,
+            'חבילה':el.product_name,
+            'אינטרנט':el.internet==0?'':el.internet,
+            'עדכון אינטרנט':el.internet==0?'':el.internet_update,
+          }
+          excel.push(a);
+        });
+        this.excelService.exportAsExcelFile(excel, 'מספרי טלפון');
+       })
+      }
   phones:any[];
   excelPhones:any[]=null;
   loading:Boolean=false;
@@ -139,8 +200,30 @@ export class PhoneComponent implements OnInit {
       company => company.id === id)[0].name;
   }
   ngOnInit() {
+    this.sort.sortChange.subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    Observable.fromEvent(this.filter.nativeElement,'keyup').subscribe(() =>{ this.paginator.pageIndex = 0;
+      this.pageIndex=0;
+    });
+    
+      merge(this.sort.sortChange, this.paginator.page,Observable.fromEvent(this.filter.nativeElement,'keyup'))
+          .startWith({})
+          .debounceTime(150)
+          .distinctUntilChanged()
+          .switchMap(() => {
+            let active=this.sort.active?this.sort.active:'id';
+            let direction=this.sort.direction?this.sort.direction:'asc';
+            this.pageIndex=this.pageIndex+1
+            let search=this.filter.nativeElement.value;
+            this.loading = true;
+            return this.phoneService!.get(active, direction, this.pageIndex,search);
+          }).
+          map(data => {this.init_data(data);})
+        .subscribe(data =>  {
+      });
     this.loadCompanies();
-    this.loadPhones();
+    //this.loadPhones();
     this.setPhoneForm();
   }
   delete(id:number){
@@ -149,7 +232,7 @@ export class PhoneComponent implements OnInit {
       data:{ id: id,phone:this.phones.filter(phone=> phone.id==id)[0].phone,data:this }
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadPhones();
+      this.ngOnInit();
     });
   }
   delete2(phone:any){
@@ -158,14 +241,13 @@ export class PhoneComponent implements OnInit {
       data:{ id: phone.id,phone:phone.phone,data:this,is2:true }
     });
     dialogRef.afterClosed().subscribe(result => {
-      //this.loadPhones();
     });
   }
   public loadPhones(){
-    this.phoneService.getPhones().subscribe(res=>{
+    this.phoneService.get('id','desc',1,'').subscribe(res=>{
       this.loading=false;
       if(!res['message']){
-        this.phones = res.reverse();
+        this.phones = res.items.reverse();
         if(this.authService.isAgent()){
           this.phones=this.phones.filter(el=>(el.agent_id==0||el.agent_id==this.authService.getCurrentUserId()));
         }
@@ -228,11 +310,11 @@ export class PhoneComponent implements OnInit {
           this.snackBar.open('קובץ האינטרנט נטען בהצלחה', 'הצלחה', {
             duration: 5000,
           });
-          this.loadPhones();
+          this.ngOnInit();
       });
     }
   }
-  displayedColumns = [ 'phone','agent_name','company_name','used','internet','id'];
+  displayedColumns = [ 'phone','agent_id','company_id','used','internet','id'];
   phonesDatabase = new DB([]);
   dataSource: DS | null;
   initPhoneDatabase(){

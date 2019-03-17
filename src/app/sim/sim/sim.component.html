@@ -4,9 +4,6 @@
     <input type="file" #fileInput placeholder="Upload file..." style="display:none;" (change)="upload()" />
     <button md-button (click)="fileInput.click()" style="position: relative;
   float: left;margin-bottom:5px;margin-right:10px;"><md-icon color="primary">file_upload</md-icon></button>
-  <button md-button style="position: relative;
-  float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
-
 </md-toolbar>
 <div class="example-container mat-elevation-z8">
     <div class="example-header">
@@ -15,19 +12,25 @@
             <md-icon mdSuffix>search</md-icon>
         </md-form-field>
     </div>
-    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+    <div class="example-loading-shade"
+    *ngIf="loading">
+ <md-spinner *ngIf="loading"></md-spinner>
+ 
+</div>
+    
+    <md-table #table [dataSource]="dataSource" dir="RTL" mdSort mdSortActive="id" mdSortDisableClear mdSortDirection="asc">
         <ng-container mdColumnDef="sim">
             <md-header-cell *mdHeaderCellDef md-sort-header>{{'sim'|translate}} </md-header-cell>
             <md-cell *mdCellDef="let row"> {{row.sim}} </md-cell>
         </ng-container>
-        <ng-container mdColumnDef="agent_name">
+        <ng-container mdColumnDef="agent_id">
             <md-header-cell *mdHeaderCellDef md-sort-header  [ngClass]="{'dn':!authService.canUpdate()}">{{'agent'|translate}} </md-header-cell>
             <md-cell *mdCellDef="let row"  [ngClass]="{'dn':!authService.canUpdate()}">
                     <ng-container *ngIf="row.agent_name=='-'">-</ng-container>  
                     <button *ngIf="row.agent_name!='-'" md-button color="primary" [routerLink]="['/סוכן', row.agent_id]">{{row.agent_name}}</button>
             </md-cell>
         </ng-container>
-        <ng-container mdColumnDef="company_name">
+        <ng-container mdColumnDef="company_id">
             <md-header-cell *mdHeaderCellDef md-sort-header>{{'company'|translate}} </md-header-cell>
             <md-cell *mdCellDef="let row"> {{getTheCompany(row)}} </md-cell>
         </ng-container>
@@ -36,7 +39,7 @@
             <md-cell *mdCellDef="let row"> {{row.used|yn|translate}} </md-cell>
         </ng-container>
         <ng-container mdColumnDef="id">
-            <md-header-cell *mdHeaderCellDef md-sort-header >#</md-header-cell>
+            <md-header-cell *mdHeaderCellDef md-sort-header disableClear="true" >#</md-header-cell>
             <md-cell *mdCellDef="let row" >
                 <md-icon (click)="edit(row)" color="primary" style="cursor:pointer;" *ngIf="authService.canUpdate()">mode_edit</md-icon>
                 <md-icon (click)="delete(row.id)" color="warn" style="cursor:pointer;" *ngIf="authService.canUpdate() && row.used=='0'">delete</md-icon>
@@ -45,7 +48,25 @@
         <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
         <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
     </md-table>
-    <md-paginator #paginator [length]="simsDatabase.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
+    <md-paginator [length]="resultsLength" [pageSize]="30" style="display:none;">
     </md-paginator>
+   
+    <nav aria-label="..." style="padding:0 10px;">
+            <ul class="pager" *ngIf="current_total>0">
+              <li class="" [ngClass]="{'disabled':pageIndex==1,'previous':true}"><a (click)="prev()" style="cursor:pointer;"><span aria-hidden="true">&rarr;</span> הקודם</a></li>
+              <li>
+                  <span>דף {{pageIndex}} &nbsp; מ &nbsp; {{total_pages}}&nbsp;| &nbsp;{{((pageIndex-1)*30)+1}} <i class=""></i>&nbsp;- &nbsp;{{((pageIndex-1)*30)+current_total}}&nbsp; מ &nbsp;{{resultsLength}}</span>
+              </li>
+              <li>
+                    <a (click)="loadExcel()" style="cursor:pointer;">{{'excel'|translate}} ({{current_total}})</a>
+              </li>
+              <li>
+                    <a (click)="loadExcel2()" style="cursor:pointer;">{{'excel'|translate}} ({{resultsLength}})</a>
+              </li>
+              <li class="next" [ngClass]="{'disabled':pageIndex==total_pages,'next':true}"><a (click)="next()" style="cursor:pointer;">הבא <span aria-hidden="true">&larr;</span></a></li>
+            </ul>
+          </nav>
+         
 </div>
+
 <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

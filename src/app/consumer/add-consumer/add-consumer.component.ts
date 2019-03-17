@@ -62,6 +62,7 @@ export class AddConsumerComponent implements OnInit {
       phone:[this.item.phone,this.validationService.phoneValidation],
       mobile:[this.item.phone],
       birthday:[this.item.birthday],
+      payment_methods:[this.item.payment_methods],
       level_id:[4]
     });
   }
@@ -84,7 +85,8 @@ export class AddConsumerComponent implements OnInit {
         last_update_sec: '',
         level_id: 4,
         parent:null,
-        parent_name:''
+        parent_name:'',
+        payment_methods:''
       };
      this.setForm();
   }

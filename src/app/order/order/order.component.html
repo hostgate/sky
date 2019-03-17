@@ -2,10 +2,10 @@
 <md-toolbar>
     <button md-button *ngIf="authService.canUpdate()" style="position: relative;
     float: left;margin-bottom:5px;margin-right:10px;" (click)="add()"><md-icon color="primary">add_circle</md-icon></button>
-    <button md-button style="position: relative;
-    float: left;margin-bottom:5px;margin-right:10px;" (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button>
+    <!-- <button md-button style="position: relative;
+    float: left;margin-bottom:5px;margin-right:10px;" 
+    (click)="loadExcel()">{{'excel'|translate}}&nbsp;<md-icon color="primary">file_download</md-icon></button> -->
 </md-toolbar>
-
 <div class="example-container mat-elevation-z8">
         <div class="example-header">
             <md-form-field floatPlaceholder="never">
@@ -13,7 +13,13 @@
                 <md-icon mdSuffix>search</md-icon>
             </md-form-field>
         </div>
-        <md-table #table [dataSource]="ds" dir="RTL" mdSort>
+        <div class="example-loading-shade"
+    *ngIf="loading">
+ <md-spinner *ngIf="loading"></md-spinner>
+ 
+</div>
+    
+    <md-table #table [dataSource]="ds" dir="RTL" mdSort mdSortActive="last_update_sec" mdSortDisableClear mdSortDirection="desc">
             <ng-container mdColumnDef="agent_name">
                 <md-header-cell *mdHeaderCellDef md-sort-header [ngClass]="{'dn':authService.isAgent()}">{{'agent'|translate}} </md-header-cell>
                 <md-cell *mdCellDef="let row" [ngClass]="{'dn':authService.isAgent()}">
@@ -60,7 +66,6 @@
                                         {{row.moved_to_phone}}
                                     </button>
                                 </ng-template>
-                                
                         </ng-container>
                    </md-cell>
             </ng-container>
@@ -78,9 +83,9 @@
                 <md-header-cell *mdHeaderCellDef md-sort-header>{{'automatic_update'|translate}} </md-header-cell>
                 <md-cell *mdCellDef="let row">
                     <ng-container *ngIf="(row.days_or_months=='months' && row.days_or_months_numbers==1 && row.status=='completed')">
-                            <mat-slide-toggle [checked]="row.automatic_update=='1'" (change)="setAutomaticUpdate(row,$event)" color="primary"></mat-slide-toggle>
+                            <mat-slide-toggle [checked]="row.automatic_update=='1'" (change)="setAutomaticUpdate(row,$event);" color="primary"></mat-slide-toggle>
                             <ng-container *ngIf="row.automatic_update=='1'">
-                                <md-select [(ngModel)]="row.months" placeholder="{{'months'|translate}}" (change)="setAutomaticUpdate(row,$event)">
+                                <md-select [(ngModel)]="row.months" placeholder="{{'months'|translate}}" (change)="setAutomaticUpdate1(row,$event)">
                                   <md-option value="1">1</md-option>
                                   <md-option value="2">2</md-option>
                                   <md-option value="3">3</md-option>
@@ -98,9 +103,7 @@
                     </md-cell>
             </ng-container>
             <ng-container mdColumnDef="status">
-                <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} 
-                   
-                </md-header-cell>
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}}</md-header-cell>
                 <md-cell *mdCellDef="let row" [ngClass]="row.status">{{row.status|translate}}
                     <ng-container *ngIf="authService.canUpdate() && allow_release(row)">
                         <button md-raised-button color="warn" (click)="releaseMember(row)">
@@ -122,8 +125,25 @@
             <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
             <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
         </md-table>
-        <md-paginator #paginator [length]="db.data.length" [pageIndex]="0" [pageSize]="25" [pageSizeOptions]="[5, 10, 25, 100]">
-        </md-paginator>
-    </div>
-
-    <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>
+        <md-paginator [length]="resultsLength" [pageSize]="30" style="display:none;">
+            </md-paginator>
+           
+            <nav aria-label="..." style="padding:0 10px;">
+                    <ul class="pager" *ngIf="current_total>0">
+                      <li class="" [ngClass]="{'disabled':pageIndex==1,'previous':true}"><a (click)="prev()" style="cursor:pointer;"><span aria-hidden="true">&rarr;</span> הקודם</a></li>
+                      <li>
+                          <span>דף {{pageIndex}} &nbsp; מ &nbsp; {{total_pages}}&nbsp;| &nbsp;{{((pageIndex-1)*30)+1}} <i class=""></i>&nbsp;- &nbsp;{{((pageIndex-1)*30)+current_total}}&nbsp; מ &nbsp;{{resultsLength}}</span>
+                      </li>
+                      <li>
+                            <a (click)="loadExcel()" style="cursor:pointer;">{{'excel'|translate}} ({{current_total}})</a>
+                      </li>
+                      <li>
+                            <a (click)="loadExcel2()" style="cursor:pointer;">{{'excel'|translate}} ({{resultsLength}})</a>
+                      </li>
+                      <li class="next" [ngClass]="{'disabled':pageIndex==total_pages,'next':true}"><a (click)="next()" style="cursor:pointer;">הבא <span aria-hidden="true">&larr;</span></a></li>
+                    </ul>
+                  </nav>
+                 
+        </div>
+        
+        <md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

@@ -42,8 +42,8 @@ export class DisconnectMemberComponent implements OnInit {
     }
     else{
       this.hotmobileStatusService.disconnect(this.phone).subscribe(res=>{
-        console.log(this.phone);
-        console.log(this.company); 
+        // console.log(this.phone);
+        // console.log(this.company); 
         this.loading=false;
         this.dialogRef.close();
       });

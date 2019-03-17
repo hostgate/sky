@@ -42,7 +42,7 @@
                 <md-cell *mdCellDef="let row">
                         <md-icon mdTooltip="{{'confirm_transfer'|translate}}" (click)="complete(row)" color="primary" style="cursor:pointer;" *ngIf="row.accepted_moved_to_phone=='0'">done</md-icon>
                         <span style="color:green" *ngIf="row.accepted_moved_to_phone=='1'">&nbsp;{{'tarns_in_date'|translate}}<br/>{{(row.accepted_moved_date_num | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}</span>
-                        
+                        <md-icon mdTooltip="{{'edit'|translate}}" (click)="edit(row)" color="primary" style="cursor:pointer;" *ngIf="authService.canUpdate()">edit</md-icon>
                 </md-cell>
             </ng-container>
             <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>

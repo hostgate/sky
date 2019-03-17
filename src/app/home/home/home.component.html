@@ -88,16 +88,28 @@
       </div> -->
     </ng-container>
     </ng-container>
-    <!-- <ng-container *ngIf="customers">
+    <ng-container *ngIf="customers">
         <div class="col-lg-2 col-md-4 col-xs-12" *ngFor="let c of customers">
-          <md-card   [routerLink]="['/לקוח', c.id]" routerLinkActive="active" style="color:orange;"   color="primary">
-            <md-icon style="color:orange;">assignment_ind</md-icon>
-            <md-card-content>
-              <span style="color:orange;white-space:normal">{{c.firstname}}&nbsp;{{c.lastname}}</span>
+          <md-card   [routerLink]="['/הזמנה-חדשה', c.phone_id]" routerLinkActive="active"   *ngIf="authService.isAgent()" >
+            <md-icon color="primary">phone</md-icon>
+            <md-card-content *ngIf="c.moved_to_phone=='0'">
+              <span style="white-space:normal">{{c.phone}}</span>&nbsp; <span style="color:orange">({{c.note}})</span>
+            </md-card-content>
+            <md-card-content *ngIf="c.moved_to_phone=='1'">
+              <span style="white-space:normal">{{c.moved_to_phone}}</span>&nbsp; <span style="color:orange">({{c.note}})</span>
+            </md-card-content>
+          </md-card>
+          <md-card   [routerLink]="['/מספר', c.phone_id]" routerLinkActive="active"   *ngIf="authService.canUpdate()" >
+            <md-icon color="primary">phone</md-icon>
+            <md-card-content *ngIf="c.moved_to_phone=='0'">
+              <span style="white-space:normal">{{c.phone}}</span>&nbsp; <span style="color:orange">({{c.note}})</span>
+            </md-card-content>
+            <md-card-content *ngIf="c.moved_to_phone=='1'">
+              <span style="white-space:normal">{{c.moved_to_phone}}</span>&nbsp; <span style="color:orange">({{c.note}})</span>
             </md-card-content>
           </md-card>
         </div>
-    </ng-container> -->
+    </ng-container>
     <ng-container *ngIf="agents && authService.canUpdate()">
         <div class="col-lg-2 col-md-4 col-xs-12" *ngFor="let agent of agents">
           <md-card   [routerLink]="['/סוכן', agent.id]" routerLinkActive="active" style="color:#795548;"   color="primary">
@@ -290,7 +302,7 @@
       </md-card>
     </div>
     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12">
-        <md-card routerLink="/דוח-כללי" routerLinkActive="active">
+        <md-card routerLink="/דוח-כללי-חדש" routerLinkActive="active">
           <md-icon color="primary">assignment</md-icon>
           <md-card-content>
             <span color="primary">{{'general_report' | translate}}</span>
@@ -305,7 +317,14 @@
           </md-card-content>
         </md-card>
       </div>
-     
+      <div class="col-lg-2 col-md-2 col-sm-4 col-xs-12" *ngIf="authService.canUpdate()">
+        <md-card routerLink="/חידוש-אוטומאטי" routerLinkActive="active">
+          <md-icon color="primary">update</md-icon>
+          <md-card-content>
+            <span color="primary">{{'automatic_update' | translate}}</span>
+          </md-card-content>
+        </md-card>
+      </div>
   </div>
 </div>
 <div class="container-fluid-in home" *ngIf="authService.isAgent()">

@@ -33,6 +33,9 @@
             <input mdInput formControlName="phone" placeholder="{{'phone'|translate}}"/>
             <valid-err [control]="consumerForm.controls['phone']"></valid-err>
         </md-form-field>
+        <md-form-field>
+            <textarea mdInput formControlName="payment_methods" placeholder="{{'payment_methods'|translate}}"></textarea>
+        </md-form-field>
         <button md-raised-button [disabled]="!consumerForm.valid" type="submit" >{{'save'|translate}}</button>
     </form>
 </div>

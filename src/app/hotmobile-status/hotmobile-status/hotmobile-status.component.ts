@@ -41,9 +41,25 @@ export class HotmobileStatusComponent implements OnInit {
         this.loadDetails();
       });
     }
+    connect7(){
+      this.loading=true;
+      this.hotmobileStatusService.connect7(this.phone).subscribe(res=>{
+        this.loading=false;
+        this.sim='';
+        this.loadDetails();
+      });
+    }
     disconnect(){
       this.loading=true;
       this.hotmobileStatusService.disconnect(this.phone).subscribe(res=>{
+        this.loading=false;
+        this.sim='';
+        this.loadDetails();
+      });
+    }
+    disconnect6(){
+      this.loading=true;
+      this.hotmobileStatusService.disconnect6(this.phone).subscribe(res=>{
         this.loading=false;
         this.sim='';
         this.loadDetails();

@@ -1,0 +1,208 @@
+<md-toolbar color="primary">{{'general_report'|translate}}</md-toolbar>
+<div class="row" style="padding:16px;width:90%;">
+    
+    <div class="col-lg-3 col-md-3 col-xs-12">
+            <div class="form-group">
+                <md-select   [(ngModel)]="filterData.limit" placeholder="{{'number_of_rows'|translate}}" (change)="go();">
+                    <md-option *ngFor="let page of [10,20,30,50,100]" [value]="page" >
+                    {{page}}
+                    </md-option>
+                </md-select>
+            </div>
+            <div class="form-group">
+                <md-select   [(ngModel)]="filterData.status" placeholder="{{'status'|translate}}" (change)="checkTrans()">
+                    <md-option  [value]="''">{{'_all'|translate}}</md-option>
+                    <md-option  [value]="'cancel'">{{'cancel'|translate}}</md-option>
+                    <md-option  [value]="'new'">{{'new'|translate}}</md-option>
+                    <md-option  [value]="'declined'">{{'declined'|translate}}</md-option>
+                    <md-option  [value]="'completed'">{{'completed'|translate}}</md-option>
+                    <md-option  [value]="'disconnected'">{{'disconnected'|translate}}</md-option>
+                    <md-option  [value]="'finished'">{{'finished'|translate}}</md-option>
+                    <md-option  [value]="'trans'">ניודים</md-option>
+                </md-select>
+            </div>
+            <div class="form-group">
+                <md-select   [(ngModel)]="filterData.company_id" placeholder="{{'company'|translate}}">
+                    <md-option  [value]="0">{{'_all'|translate}}</md-option>
+                    <md-option  [value]="'1'">HOT</md-option>
+                    <md-option  [value]="'2'">SKY</md-option>
+                </md-select>
+            </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+            <div class="form-group" *ngIf="agents && agents.length>0">
+                <md-select   [(ngModel)]="filterData.agent" placeholder="{{'agent'|translate}}">
+                    <md-option  [value]="0">{{'_all'|translate}}</md-option>
+                    <md-option *ngFor="let agent of agents" [value]="agent.id">
+                        <span [innerHTML]="agent.firstname"></span>&nbsp;
+                        <span [innerHTML]="agent.lastname"></span>
+                    </md-option>
+                </md-select>
+            </div>
+            <div class="form-group">
+                <md-form-field>
+                    <input mdInput [mdDatepicker]="picker" placeholder="{{'_begin'|translate}}" [(ngModel)]="filterData.begin">
+                    <md-datepicker-toggle mdSuffix [for]="picker"></md-datepicker-toggle>
+                    <md-datepicker #picker></md-datepicker>
+                </md-form-field>
+            </div>
+            <div class="form-group">
+                <md-form-field>
+                    <input mdInput [mdDatepicker]="picker1" placeholder="{{'_end'|translate}}" [(ngModel)]="filterData.end">
+                    <md-datepicker-toggle mdSuffix [for]="picker1"></md-datepicker-toggle>
+                    <md-datepicker #picker1></md-datepicker>
+                </md-form-field>
+            </div>
+           
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+            <div class="form-group">
+                <md-form-field  >
+                    <input mdInput placeholder="טקסט חופשי" [(ngModel)]="filterData.search">
+                    <md-icon mdSuffix>search</md-icon>
+                </md-form-field>
+            </div>
+            <button md-raised-button color="primary" (click)="go()" style="width:100%;margin-bottom:10px;">
+                התחל חיפוש
+            </button>
+            <button md-raised-button color="warn" (click)="resetFilter()" style="width:100%;">
+                אפס הגדרות חיפוש
+            </button>
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+            <!-- <a (click)="go()">gooooo</a>  -->
+    </div>
+</div>
+<div class="example-container mat-elevation-z8">
+        <md-table #table [dataSource]="dataSource" dir="RTL" mdSort>
+            <ng-container mdColumnDef="agent_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'agent'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">
+                    <ng-container *ngIf="row.agent_name=='-'">
+                        {{row.agent_name}} 
+                    </ng-container>
+                    <button md-button color="primary" *ngIf="row.agent_name!='-'" [routerLink]="['/סוכן', row.agent_id]">
+                        {{row.agent_name}}
+                    </button> 
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="valid_from_sec">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'valid_from'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">{{(row.valid_from_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}</md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="last_update_sec">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'last_update'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">{{(row.last_update_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY HH:mm:ss'}}</md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="phone">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'phone'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">
+                    <ng-container *ngIf="authService.isAgent() && row.moved_to_phone!='0';else e4e">
+                        <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]">
+                            <ng-container *ngIf="!__trans">{{row.moved_to_phone}}</ng-container>
+                            <ng-container *ngIf="__trans">
+                                {{row.phone}}&nbsp; <strong style="color:green;">>>&nbsp;<span>{{row.moved_to_phone}}</span></strong>
+                            </ng-container>
+                            
+                        </button>
+                    </ng-container>
+                    <ng-template #e4e>
+                        <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone=='0' && row.accepted_moved_to_phone=='0'">
+                            {{row.phone}}
+                        </button>
+                        <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='1'">
+                            <ng-container *ngIf="__trans"> {{row.phone}}&nbsp; <strong style="color:green;">>>&nbsp;<span>{{row.moved_to_phone}}</span></strong></ng-container>
+                            <ng-container *ngIf="row.moved_to_phone && !__trans">{{row.moved_to_phone}}</ng-container>
+                            <ng-container *ngIf="!row.moved_to_phone && !__trans">{{row.phone}}</ng-container>
+                        </button> 
+                        <button md-button color="primary" [routerLink]="['/מספר', row.phone_id]" *ngIf="row.moved_to_phone!='0' && row.accepted_moved_to_phone=='0'">
+                            <ng-container *ngIf="__trans"> {{row.phone}}&nbsp; <strong>>>&nbsp;<span style="color:red;">{{row.moved_to_phone}}</span></strong> </ng-container>
+                            <ng-container *ngIf="row.moved_to_phone && !__trans">{{row.moved_to_phone}}</ng-container>
+                            <ng-container *ngIf="!row.moved_to_phone && !__trans">{{row.phone}}</ng-container>
+                        </button> 
+                    </ng-template>
+                    
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="id">
+                <md-header-cell *mdHeaderCellDef md-sort-header># </md-header-cell>
+                <md-cell *mdCellDef="let row">
+                        <ng-container *ngIf="row.status=='completed'">
+                            <button md-mini-fab [color]="'primary'" style="margin-left:15px;" (click)="refreshConnect(row);">{{'refresh_member'|translate}}</button> 
+                        </ng-container>
+                        <ng-container *ngIf="row.status=='completed' && authService.isRent()">
+                            <button md-mini-fab [color]="'warn'" style="margin-left:15px;" (click)="disconnectMember(row);">{{'disconnect2'|translate}}</button> 
+                        </ng-container>
+                        <ng-container *ngIf="authService.canUpdate()">
+                                <button md-mini-fab  style="margin-left:15px;" (click)="addRest(row);">{{'rest'|translate}}</button> 
+                        </ng-container>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="product_name">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'product'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">{{'company_name_'+row.company_id|translate}}&nbsp;/&nbsp;
+                    <span innerHTML="{{'prod_name_'+row.product_id|translate}}"></span>
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="note">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'note'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row">{{row.note}}
+                </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="price">
+                <md-header-cell *mdHeaderCellDef md-sort-header>
+                    {{'recommended_price'|translate}}<br/>{{'all'|translate}}:{{sum_price|number : '1.2-2'}}
+                </md-header-cell>
+                <md-cell *mdCellDef="let row">{{row.price|currency:'ILS':'code'}} </md-cell> 
+            </ng-container>
+            <ng-container mdColumnDef="price_agent">
+                <md-header-cell *mdHeaderCellDef md-sort-header>
+                    {{'cost'|translate}} <br/>{{'all'|translate}}:{{sum_price_agent|number : '1.2-2'}}
+                </md-header-cell>
+                <md-cell *mdCellDef="let row">{{row.price_agent|currency:'ILS':'code'}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="rest">
+                <md-header-cell *mdHeaderCellDef md-sort-header>
+                    {{'rest'|translate}} <br/>{{'all'|translate}}:{{sum_rest|number : '1.2-2'}}
+                </md-header-cell>
+                <md-cell *mdCellDef="let row">{{row.rest|currency:'ILS':'code'}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="profit">
+                <md-header-cell *mdHeaderCellDef md-sort-header>
+                    {{'sold_to_the_customer'|translate}}<br/>{{'all'|translate}}:{{sum_profit|number : '1.2-2'}}
+                </md-header-cell>
+                <md-cell *mdCellDef="let row">{{(row.profit*1)+(row.price*1)|currency:'ILS':'code'}} </md-cell>
+            </ng-container>
+            <ng-container mdColumnDef="status">
+                <md-header-cell *mdHeaderCellDef md-sort-header>{{'status'|translate}} </md-header-cell>
+                <md-cell *mdCellDef="let row" [ngClass]="row.status">
+                    {{row.status|translate}}
+                    <span *ngIf="row.status=='completed'">
+                        &nbsp;{{'until'|translate}}<br/>{{(row.completed_date_sec | amFromUnix)| amDateFormat: 'DD.MM.YYYY'}}
+                    </span>
+                </md-cell>
+            </ng-container>
+            <md-header-row *mdHeaderRowDef="displayedColumns"></md-header-row>
+            <md-row *mdRowDef="let row; columns: displayedColumns;"></md-row>
+        </md-table>
+        <md-paginator #paginator [length]="resultsLength" [pageSize]="filterData.limit" style="display:none;">
+            </md-paginator>
+           
+            <nav aria-label="..." style="padding:0 10px;">
+                    <ul class="pager" *ngIf="current_total>0">
+                      <li class="" [ngClass]="{'disabled':pageIndex==1,'previous':true}"><a (click)="prev()" style="cursor:pointer;"><span aria-hidden="true">&rarr;</span> הקודם</a></li>
+                      <li>
+                          <span>דף {{pageIndex}} &nbsp; מ &nbsp; {{total_pages}}&nbsp;| &nbsp;{{((pageIndex-1)*filterData.limit)+1}} <i class=""></i>&nbsp;- &nbsp;{{((pageIndex-1)*filterData.limit)+current_total}}&nbsp; מ &nbsp;{{resultsLength}}</span>
+                      </li>
+                      <li>
+                            <a (click)="loadExcel()" style="cursor:pointer;">{{'excel'|translate}} ({{current_total}})</a>
+                      </li>
+                      <li>
+                            <a (click)="loadExcel2()" style="cursor:pointer;">{{'excel'|translate}} ({{resultsLength}})</a>
+                      </li>
+                      <li class="next" [ngClass]="{'disabled':pageIndex==total_pages,'next':true}"><a (click)="next()" style="cursor:pointer;">הבא <span aria-hidden="true">&larr;</span></a></li>
+                    </ul>
+                  </nav>
+    </div>
+
+<md-progress-bar mode="indeterminate" *ngIf="loading"></md-progress-bar>

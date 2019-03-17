@@ -19,6 +19,8 @@ import { LocalStorageService } from '../../local-storage.service';
 import { ExcelService } from '../../excel.service';
 import { AuthenticationService } from '../../login/authentication.service';
 import { MsgComponent } from '../../msg/msg.component';
+import {merge} from 'rxjs/observable/merge';
+import {of as observableOf} from 'rxjs/observable/of';
 @Component({
   selector: 'app-sim',
   templateUrl: './sim.component.html',
@@ -27,6 +29,12 @@ import { MsgComponent } from '../../msg/msg.component';
 })
 export class SimComponent implements OnInit {
   excelSims:any[]=null;
+  resultsLength = 0;
+  isLoadingResults = true;
+  isRateLimitReached = false;
+  total_pages=0;
+  current_total=0;
+  pageIndex=0;
   @ViewChild('filter') filter: ElementRef;
   @ViewChild(MdSort) sort: MdSort;
   @ViewChild(MdPaginator) paginator: MdPaginator;
@@ -63,10 +71,27 @@ export class SimComponent implements OnInit {
     });
     this.excelService.exportAsExcelFile(excel, 'מלאי סימים');
   }
+  loadExcel2(){
+    this.loading=true;
+   this.simService.getExcel(this.filter.nativeElement.value).subscribe(res=>{
+      this.loading=false;
+      let excel:any=[];
+      res.items.forEach(el=>{
+      let a:any={
+        'id':el.id,
+        'סים':el.sim,
+        'סוכן':el.agent_name,
+        'חברה':this.companies.filter(ele=>ele.id==el.company_id)[0].name,
+        'בשימוש':el.used==='1'?'כן':'לא'
+      }
+      excel.push(a);
+    });
+    this.excelService.exportAsExcelFile(excel, 'מלאי סימים');
+   })
+  }
   sims:Sim[];
   companies:Company[];
   loading:Boolean=true;
- // msgs: Message[] = [];
   item:Sim;
   simForm:FormGroup;
   formOnInit(sim:any){
@@ -118,7 +143,7 @@ export class SimComponent implements OnInit {
       data:{ id: id,sim:this.sims.filter(sim=> sim.id==id)[0].sim,data:this }
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.loadSims();
+      this.ngOnInit();
     });
   }
   loadCompanies(){
@@ -128,10 +153,67 @@ export class SimComponent implements OnInit {
         }
     });
   }
+  
   ngOnInit() {
+   this.sort.sortChange.subscribe(() =>{ this.paginator.pageIndex = 0;
+    this.pageIndex=0;
+  });
+  Observable.fromEvent(this.filter.nativeElement,'keyup').subscribe(() =>{ this.paginator.pageIndex = 0;
+    this.pageIndex=0;
+  });
+  
+    merge(this.sort.sortChange, this.paginator.page,Observable.fromEvent(this.filter.nativeElement,'keyup'))
+        .startWith({})
+        .debounceTime(150)
+        .distinctUntilChanged()
+        .switchMap(() => {
+          let active=this.sort.active?this.sort.active:'id';
+          let direction=this.sort.direction?this.sort.direction:'asc';
+          this.pageIndex=this.pageIndex+1
+          let search=this.filter.nativeElement.value;
+          this.loading = true;
+          return this.simService!.get(active, direction, this.pageIndex,search);
+        }).
+        map(data => {this.init_data(data);})
+      .subscribe(data =>  {
+    });
     this.loadCompanies();
-    this.loadSims();
     this.setSimForm();
+  }
+  init_data(data){
+    this.loading = false;
+    this.isRateLimitReached = false;
+    this.resultsLength = data.total_count;
+    this.total_pages=data.total_pages;
+    this.current_total=data.items.length;
+    for(let i=0;i<data.items.length;i++){
+      data.items[i].company_name=this.getCompanyName(data.items[i].company_id); 
+      data.items[i].company_name_ar=this.getCompanyNameAr(data.items[i].company_id);
+      data.items[i].company_name_en=this.getCompanyNameEn(data.items[i].company_id);
+    }
+    this.simsDatabase = new DB(data.items);
+    this.paginator.pageIndex=0;
+    this.dataSource = new DS(this.simsDatabase, this.sort, this.paginator);
+  }
+  prev(){
+    if(this.pageIndex>1){
+      this.pageIndex=this.pageIndex-1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.simService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
+  }
+  next(){
+    if(this.pageIndex<this.total_pages){
+      this.pageIndex=this.pageIndex+1;
+      let active=this.sort.active?this.sort.active:'id';
+      let direction=this.sort.direction?this.sort.direction:'asc';
+      let search=this.filter.nativeElement.value;
+      this.loading = true;
+      this.simService!.get(active, direction, this.pageIndex,search).subscribe(data => {this.init_data(data);});
+    }
   }
   getCompanyName(id:number){
     if(id==0 || !this.companies){
@@ -170,12 +252,13 @@ export class SimComponent implements OnInit {
     }
     return c;
   }
+  
   public loadSims(){
-    this.simService.getAllSims().subscribe(res=>{
+    this.simService.get('id','ASC',1,'').subscribe(res=>{
       this.loading=false;
       if(!res['message']){
-        this.sims = res.reverse();
-        this.initSimDatabase();
+        this.sims = res.items.reverse();
+        this.ngOnInit();
       }
     });
   }
@@ -212,26 +295,10 @@ export class SimComponent implements OnInit {
       });
     }
   }
-  displayedColumns = [ 'sim','agent_name','company_name','used','id'];
+  displayedColumns = [ 'sim','agent_id','company_id','used','id'];
   simsDatabase = new DB([]);
   dataSource: DS | null;
-  initSimDatabase(){
-    for(let i=0;i<this.sims.length;i++){
-      this.sims[i].company_name=this.getCompanyName(this.sims[i].company_id);
-      this.sims[i].company_name_ar=this.getCompanyNameAr(this.sims[i].company_id);
-      this.sims[i].company_name_en=this.getCompanyNameEn(this.sims[i].company_id);
-    }
-    this.simsDatabase = new DB(this.sims);
-    this.dataSource = new DS(this.simsDatabase, this.sort, this.paginator);
-    Observable.fromEvent(this.filter.nativeElement, 'keyup')
-    .debounceTime(150)
-    .distinctUntilChanged()
-    .subscribe(() => {
-      if (!this.dataSource) { return; }
-      this.dataSource.filter = this.filter.nativeElement.value;
-    });
-   
-  }
+  
 }
 @Component({
   selector: 'delete-dialog',
